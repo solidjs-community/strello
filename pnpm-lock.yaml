@@ -15,8 +15,8 @@ dependencies:
     specifier: ^0.13
     version: 0.13.0(solid-js@1.8.15)
   '@solidjs/start':
-    specifier: ^0.6.1
-    version: 0.6.1(solid-js@1.8.15)(vinxi@0.3.10)(vite@5.1.5)
+    specifier: ^0.7.1
+    version: 0.7.1(solid-js@1.8.15)(vinxi@0.3.10)(vite@5.1.5)
   prisma:
     specifier: ^5.7.0
     version: 5.10.2
@@ -24,7 +24,7 @@ dependencies:
     specifier: ^1.8.15
     version: 1.8.15
   vinxi:
-    specifier: ^0.3.9
+    specifier: ^0.3.10
     version: 0.3.10(@types/node@20.11.25)
 
 devDependencies:
@@ -1485,8 +1485,8 @@ packages:
       solid-js: 1.8.15
     dev: false
 
-  /@solidjs/start@0.6.1(solid-js@1.8.15)(vinxi@0.3.10)(vite@5.1.5):
-    resolution: {integrity: sha512-e5kj37jTVCfKhTg14ozvJr7ksZUd8FedRlbJlkPsO+Mbi04fyZ5i+41I5RjLYPF1WukLLuJKUGz9He7NJv6e7A==}
+  /@solidjs/start@0.7.1(solid-js@1.8.15)(vinxi@0.3.10)(vite@5.1.5):
+    resolution: {integrity: sha512-mu9lXjCTov9fNGFiWTI4gljRx7VdpIV2xbpoggpwqiWfSIbGj9DsIb4WcMZoMR/lvPcw7Q6dG3RIBvnP+3LAuQ==}
     dependencies:
       '@vinxi/plugin-directives': 0.3.1(vinxi@0.3.10)
       '@vinxi/server-components': 0.3.3(vinxi@0.3.10)
