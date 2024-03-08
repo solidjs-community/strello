@@ -1,8 +1,8 @@
 import { PrismaClient } from "@prisma/client";
-const prisma = new PrismaClient();
+const db = new PrismaClient();
 
 process.on("beforeExit", () => {
-  prisma.$disconnect();
+  db.$disconnect();
 });
 
-export { prisma };
+export { db };
