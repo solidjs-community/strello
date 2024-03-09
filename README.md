@@ -1,4 +1,4 @@
-# Trellix Solid
+# Strello
 
 A clone of the <a href="https://trellix.fly.dev/">Remix Run Trellix</a> example project to demonstrate SolidStart's capabilities.
 
