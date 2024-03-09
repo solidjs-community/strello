@@ -1,38 +1,42 @@
 import {
   useSubmission,
-  type RouteSectionProps
+  type RouteSectionProps,
 } from "@solidjs/router";
-import { Show } from "solid-js";
+import { Show, createSignal } from "solid-js";
 import { loginOrRegister } from "~/lib";
+import { Title } from "@solidjs/meta"
 
 export default function Login(props: RouteSectionProps) {
   const loggingIn = useSubmission(loginOrRegister);
+  const [register, setRegister] = createSignal(false);
 
   return (
-    <main>
-      <h1>Login</h1>
+    <main class="w-full text-center mx-auto p-4 space-y-2">
+      <Title>Login/Register | Trellix Solid</Title>
+      <h2 class="font-bold text-3xl mb-4">Login</h2>
       <form action={loginOrRegister} method="post">
         <input type="hidden" name="redirectTo" value={props.params.redirectTo ?? "/"} />
-        <fieldset>
-          <legend>Login or Register?</legend>
-          <label>
-            <input type="radio" name="loginType" value="login" checked={true} /> Login
+        <fieldset class="my-2">
+          <label class="pr-2">
+            <input type="radio" name="loginType" value="login" checked={true} onChange={(e) => setRegister(!e.target.checked)} /> Login
           </label>
           <label>
-            <input type="radio" name="loginType" value="register" /> Register
+            <input type="radio" name="loginType" value="register" onChange={(e) => setRegister(e.target.checked)} /> Register
           </label>
         </fieldset>
         <div>
-          <label for="username-input">Username</label>
-          <input name="username" placeholder="kody" />
+          <label class="pr-2" for="username-input">Username</label>
+          <input id="username-input" class="shadow appearance-none border rounded mt-4 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" name="username" placeholder="kody" />
         </div>
         <div>
-          <label for="password-input">Password</label>
-          <input name="password" type="password" placeholder="twixrox" />
+          <label class="pr-2" for="password-input">Password&nbsp;</label>
+          <input id="password-input" class="shadow appearance-none border rounded mt-4 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" name="password" type="password" placeholder="twixrox" />
         </div>
-        <button type="submit">Login</button>
+        <button class="w-24 mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" type="submit">
+          {register() ? 'Register' : 'Login'}
+        </button>
         <Show when={loggingIn.result}>
-          <p style={{color: "red"}} role="alert" id="error-message">
+          <p class="mt-2 text-red-500" role="alert" id="error-message">
             {loggingIn.result!.message}
           </p>
         </Show>

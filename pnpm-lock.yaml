@@ -8,12 +8,15 @@ dependencies:
   '@prisma/client':
     specifier: ^5.7.0
     version: 5.10.2(prisma@5.10.2)
+  '@solidjs/meta':
+    specifier: ^0.29.3
+    version: 0.29.3(solid-js@1.8.15)
   '@solidjs/router':
-    specifier: ^0.12.5
-    version: 0.12.5(solid-js@1.8.15)
+    specifier: ^0.13
+    version: 0.13.0(solid-js@1.8.15)
   '@solidjs/start':
-    specifier: ^0.6.1
-    version: 0.6.1(solid-js@1.8.15)(vinxi@0.3.10)(vite@5.1.5)
+    specifier: ^0.7.1
+    version: 0.7.1(solid-js@1.8.15)(vinxi@0.3.10)(vite@5.1.5)
   prisma:
     specifier: ^5.7.0
     version: 5.10.2
@@ -21,7 +24,7 @@ dependencies:
     specifier: ^1.8.15
     version: 1.8.15
   vinxi:
-    specifier: ^0.3.9
+    specifier: ^0.3.10
     version: 0.3.10(@types/node@20.11.25)
 
 devDependencies:
@@ -1466,16 +1469,24 @@ packages:
     engines: {node: '>=18'}
     dev: false
 
-  /@solidjs/router@0.12.5(solid-js@1.8.15):
-    resolution: {integrity: sha512-UK9GnWPS1RmBf7w35DpWwqNgpVbKhon5eXOl7Xk+edPMTzzHkwPW2RytQKQ0BMRQOHzyM/WRetWLbIAubKdlog==}
+  /@solidjs/meta@0.29.3(solid-js@1.8.15):
+    resolution: {integrity: sha512-R2uirgjgyh3FPFh+rb840plF701N6GvM5w81/QeI61QwjXb4QzLkyI/uzXfC5UW8favpUn9KK9ILQeoTl6pX0A==}
+    peerDependencies:
+      solid-js: '>=1.8.4'
+    dependencies:
+      solid-js: 1.8.15
+    dev: false
+
+  /@solidjs/router@0.13.0(solid-js@1.8.15):
+    resolution: {integrity: sha512-YHLbFv9J53+iG4yVrh0vVdYiyXPTk892UyZ1jiMPsUXn2dYkX4552N+8SjvlKWWsmNmYxaoefM6jZn1YtVIUUg==}
     peerDependencies:
       solid-js: ^1.8.6
     dependencies:
       solid-js: 1.8.15
     dev: false
 
-  /@solidjs/start@0.6.1(solid-js@1.8.15)(vinxi@0.3.10)(vite@5.1.5):
-    resolution: {integrity: sha512-e5kj37jTVCfKhTg14ozvJr7ksZUd8FedRlbJlkPsO+Mbi04fyZ5i+41I5RjLYPF1WukLLuJKUGz9He7NJv6e7A==}
+  /@solidjs/start@0.7.1(solid-js@1.8.15)(vinxi@0.3.10)(vite@5.1.5):
+    resolution: {integrity: sha512-mu9lXjCTov9fNGFiWTI4gljRx7VdpIV2xbpoggpwqiWfSIbGj9DsIb4WcMZoMR/lvPcw7Q6dG3RIBvnP+3LAuQ==}
     dependencies:
       '@vinxi/plugin-directives': 0.3.1(vinxi@0.3.10)
       '@vinxi/server-components': 0.3.3(vinxi@0.3.10)
