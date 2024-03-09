@@ -1,39 +1,65 @@
-import { useSession } from "vinxi/http";
 import { db } from "./db";
+import crypto from "crypto";
 
-export function validateUsername(username: unknown) {
-  if (typeof username !== "string" || username.length < 3) {
-    return `Usernames must be at least 3 characters long`;
+export function validateEmail(email: string) {
+  if (!email) {
+    return "Email is required.";
+  } else if (!email.includes("@")) {
+    return "Please enter a valid email address.";
   }
 }
 
-export function validatePassword(password: unknown) {
-  if (typeof password !== "string" || password.length < 6) {
-    return `Passwords must be at least 6 characters long`;
+export function validatePassword(password: string) {
+  if (!password) {
+    return "Password is required.";
+  } else if (password.length < 6) {
+    return "Password must be at least 6 characters.";
   }
 }
 
-export async function login(username: string, password: string) {
-  const user = await db.user.findUnique({ where: { username } });
-  if (!user || password !== user.password) throw new Error("Invalid login");
+export async function login(email: string, password: string) {
+  let user = await db.account.findUnique({
+    where: { email: email },
+    include: { Password: true },
+  });
+
+  if (!user || !user.Password) {
+    throw new Error("Account not found!");
+  }
+
+  let hash = crypto
+    .pbkdf2Sync(password, user.Password.salt, 1000, 64, "sha256")
+    .toString("hex");
+
+  if (hash !== user.Password.hash) {
+    throw new Error("Invalid password");
+  }
+
   return user;
 }
 
-export async function logout() {
-  const session = await getSession();
-  await session.update(d => (d.userId = undefined));
-}
-
-export async function register(username: string, password: string) {
-  const existingUser = await db.user.findUnique({ where: { username } });
-  if (existingUser) throw new Error("User already exists");
-  return db.user.create({
-    data: { username: username, password }
+export async function accountExists(email: string) {
+  let account = await db.account.findUnique({
+    where: { email: email },
+    select: { id: true },
   });
+
+  return Boolean(account);
 }
 
-export function getSession() {
-  return useSession({
-    password: process.env.SESSION_SECRET ?? "areallylongsecretthatyoushouldreplace"
+export async function register(email: string, password: string) {
+  const userExists = await accountExists(email);
+  if (userExists) throw new Error("User already exists");
+
+  let salt = crypto.randomBytes(16).toString("hex");
+  let hash = crypto
+    .pbkdf2Sync(password, salt, 1000, 64, "sha256")
+    .toString("hex");
+
+  return db.account.create({
+    data: {
+      email: email,
+      Password: { create: { hash, salt } },
+    },
   });
 }
