@@ -1,6 +1,6 @@
 import { action, cache, redirect } from "@solidjs/router";
 import { db } from "./db";
-import { createBoard, login, register, validateEmail, validatePassword } from "./server";
+import { login, register, validateEmail, validatePassword } from "./server";
 import { getSession, logoutSession, setAuthOnResponse } from "./auth";
 
 export const getUser = cache(async () => {
@@ -45,45 +45,44 @@ export const logout = action(async () => {
 
 export const getBoards = cache(async () => {
   "use server";
-  const user = await getUser();
+  const session = await getSession();
+  const userId = session.data.userId;
 
   return db.board.findMany({
     where: {
-      accountId: user.id,
+      accountId: userId,
     },
   });
-
-}, 'get-boards');
+}, "get-boards");
 
 export const addBoard = action(async (formData: FormData) => {
   "use server";
 
-  const user = await getUser();
-  const name = String(formData.get('name'));
-  const color = String(formData.get('color'));
+  const session = await getSession();
+  const userId = session.data.userId;
+  const name = String(formData.get("name"));
+  const color = String(formData.get("color"));
 
   const board = await db.board.create({
     data: {
-      accountId: user.id,
+      accountId: userId,
       name,
-      color
+      color,
     },
   });
 
   return redirect(`/board/${board.id}`);
-}, 'add-board');
+}, "add-board");
 
 export const deleteBoard = action(async (boardId: number) => {
   "use server";
 
-  const user = await getUser();
-
-  console.log('test');
-
+  const session = await getSession();
+  const userId = session.data.userId;
+  console.log("helo");
   await db.board.delete({
-    where: { id: boardId, accountId: user.id },
+    where: { id: boardId, accountId: userId },
   });
 
-  return redirect('/');
-}, 'delete-board');
-
+  return redirect("/");
+}, "delete-board");
