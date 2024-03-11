@@ -1,7 +1,12 @@
 import { action, cache, redirect } from "@solidjs/router";
 import { db } from "./db";
 import { login, register, validateEmail, validatePassword } from "./server";
-import { getSession, logoutSession, setAuthOnResponse } from "./auth";
+import {
+  getAuthUser,
+  getSession,
+  logoutSession,
+  setAuthOnResponse,
+} from "./auth";
 
 export const getUser = cache(async () => {
   "use server";
@@ -75,14 +80,22 @@ export const addBoard = action(async (formData: FormData) => {
 }, "add-board");
 
 export const deleteBoard = action(async (boardId: number) => {
-  "use server";
-
   const session = await getSession();
   const userId = session.data.userId;
-  console.log("helo");
+
   await db.board.delete({
     where: { id: boardId, accountId: userId },
   });
 
   return redirect("/");
 }, "delete-board");
+
+export const redirectIfLoggedIn = cache(async () => {
+  "use server";
+
+  let userId = await getAuthUser();
+  if (userId) {
+    return redirect("/");
+  }
+  return null;
+}, "loggedIn");

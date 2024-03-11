@@ -1,7 +1,17 @@
-import { useSubmission, type RouteSectionProps } from "@solidjs/router";
+import {
+  useSubmission,
+  type RouteSectionProps,
+  RouteDefinition,
+} from "@solidjs/router";
 import { Show, createSignal } from "solid-js";
-import { loginOrRegister } from "~/lib";
+import { loginOrRegister, redirectIfLoggedIn } from "~/lib";
 import { Title } from "@solidjs/meta";
+
+export const route = {
+  // todo: review this pattern.
+  // question: why does this function not call unless wrapped with cache?
+  load: () => redirectIfLoggedIn(),
+} satisfies RouteDefinition;
 
 export default function Login(props: RouteSectionProps) {
   const loggingIn = useSubmission(loginOrRegister);

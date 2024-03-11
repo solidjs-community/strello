@@ -18,7 +18,7 @@ export function getSession() {
   });
 }
 
-export async function getAuthFromRequest() {
+export async function getAuthUser() {
   const session = await getSession();
   const userId = session.data.userId;
   if (!userId) return null;
@@ -31,7 +31,7 @@ export async function setAuthOnResponse(userId: string) {
 }
 
 export async function requireAuth() {
-  let userId = await getAuthFromRequest();
+  let userId = await getAuthUser();
   if (!userId) {
     await logoutSession();
   }
