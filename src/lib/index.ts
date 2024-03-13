@@ -80,6 +80,7 @@ export const addBoard = action(async (formData: FormData) => {
 }, "add-board");
 
 export const deleteBoard = action(async (boardId: number) => {
+  "use server";
   const session = await getSession();
   const userId = session.data.userId;
 
