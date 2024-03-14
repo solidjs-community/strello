@@ -80,22 +80,25 @@ export default function Home() {
               {(
                 board // TODO: having this a on top level is messing with the button click bellow
               ) => (
-                <a
-                  class="w-60 h-40 p-4 block border-b-8 shadow rounded hover:shadow-lg bg-white relative"
-                  href={`/board/${board.id}`}
-                  style={`border-color: ${board.color}`}
-                >
-                  <div class="font-bold">{board.name}</div>
+                <div>
+                  <a
+                    class="w-60 h-40 p-4 block border-b-8 shadow rounded hover:shadow-lg bg-white relative"
+                    href={`/board/${board.id}`}
+                    style={`border-color: ${board.color}`}
+                  >
+                    <div class="font-bold">{board.name}</div>
+
+                  </a>
                   <form action={deleteBoard.with(board.id)} method="post">
                     <button
                       aria-label="Delete board"
-                      class="absolute top-4 right-4 hover:text-brand-red"
+                      class=" hover:text-brand-red"
                       type="submit"
                     >
                       Delete
                     </button>
                   </form>
-                </a>
+                </div>
               )}
             </For>
           </nav>

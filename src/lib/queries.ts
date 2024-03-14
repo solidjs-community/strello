@@ -1,15 +1,13 @@
-'use server';
-
 import { db } from "~/lib/db";
-
-import { ItemMutation } from "./types";
-import { action } from "@solidjs/router";
+import { action, redirect } from "@solidjs/router";
 
 export function deleteCard(id: string, accountId: string) {
+    "use server";
     return db.item.delete({ where: { id, Board: { accountId } } });
 }
 
 export async function getBoardData(boardId: number, accountId: string) {
+    "use server";
     return db.board.findUnique({
         where: {
             id: boardId,
@@ -22,21 +20,25 @@ export async function getBoardData(boardId: number, accountId: string) {
     });
 }
 
-export const updateBoardName = action((
+export const updateBoardName = action(async (
     boardId: number,
     name: string,
     accountId: string,
 ) => {
-    return db.board.update({
+    "use server";
+    await db.board.update({
         where: { id: boardId, accountId: accountId },
         data: { name },
     });
+
+    return redirect('/');
 }, "update-board-name");
 
 export function upsertItem(
-    mutation: ItemMutation & { boardId: number },
+    mutation: any,
     accountId: string,
 ) {
+    "use server";
     return db.item.upsert({
         where: {
             id: mutation.id,
@@ -54,27 +56,9 @@ export async function updateColumnName(
     name: string,
     accountId: string,
 ) {
+    "use server";
     return db.column.update({
         where: { id, Board: { accountId } },
         data: { name },
-    });
-}
-
-export async function createColumn(
-    boardId: number,
-    name: string,
-    id: string,
-    accountId: string,
-) {
-    let columnCount = await db.column.count({
-        where: { boardId, Board: { accountId } },
-    });
-    return db.column.create({
-        data: {
-            id,
-            boardId,
-            name,
-            order: columnCount + 1,
-        },
     });
 }
