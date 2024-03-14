@@ -1,5 +1,5 @@
-import { useParams } from "@solidjs/router";
-import { Show, createSignal } from "solid-js";
+import { useAction, useParams } from "@solidjs/router";
+import { Show, createEffect, createSignal } from "solid-js";
 import { upsertItem } from "~/lib/queries";
 
 type NewCardProps = {
@@ -9,7 +9,16 @@ type NewCardProps = {
 export default function NewCard(props: NewCardProps) {
     const params = useParams();
     const [editing, setEditing] = createSignal(false);
+    const upsertItemAction = useAction(upsertItem);
+
     let buttonRef: HTMLButtonElement | undefined;
+    let textareaRef: HTMLTextAreaElement | undefined;
+
+    createEffect(() => {
+        if (editing()) {
+            textareaRef?.focus();
+        }
+    });
 
     return (
         <Show when={editing()} fallback={<div class="p-2">
@@ -17,11 +26,17 @@ export default function NewCard(props: NewCardProps) {
                 Add a card
             </button>
         </div>}>
-            <form action={upsertItem} method="post" class="px-2 py-1 border-t-2 border-b-2 border-transparent">
-                <input name="id" type="hidden" value={crypto.randomUUID()} />
+            <form onSubmit={async (e) => {
+                e.preventDefault();
+                const formData = new FormData(e.currentTarget);
+                formData.set('id', crypto.randomUUID());
+                upsertItemAction(formData);
+                e.currentTarget.reset();
+            }} method="post" class="px-2 py-1 border-t-2 border-b-2 border-transparent">
                 <input name="boardId" type="hidden" value={params.id} />
                 <input name="columnId" type="hidden" value={props.columnId} />
                 <textarea
+                    ref={textareaRef}
                     name="title"
                     autofocus
                     required
@@ -34,7 +49,7 @@ export default function NewCard(props: NewCardProps) {
                         }
                     }}
                 />
-                < div class="flex justify-between">
+                <div class="flex justify-between">
                     <button ref={buttonRef} type="submit" class="text-sm rounded-lg text-left p-2 font-medium text-white bg-brand-blue">
                         Save Card
                     </button>
@@ -44,6 +59,6 @@ export default function NewCard(props: NewCardProps) {
                     </button>
                 </div>
             </form>
-        </Show >
+        </Show>
     )
 }
