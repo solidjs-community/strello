@@ -27,9 +27,10 @@ export default function Board({ params }: any) {
 
             <div class="flex flex-grow min-h-0 h-full items-start gap-4 px-8 pb-4">
                 <For each={board()?.columns}>
-                    {(column) => (
-                        <Column column={column} user={user} />
-                    )}
+                    {(column) => {
+                        const items = board()?.items.filter(item => item.columnId === column.id)
+                        return <Column column={column} user={user} items={items} />
+                    }}
                 </For>
                 <NewColumn
                     boardId={board()?.id!}
