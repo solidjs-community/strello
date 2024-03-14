@@ -28,7 +28,7 @@ export default function Board({ params }: any) {
             <div class="flex flex-grow min-h-0 h-full items-start gap-4 px-8 pb-4">
                 <For each={board()?.columns}>
                     {(column) => {
-                        const items = board()?.items.filter(item => item.columnId === column.id)
+                        const items = board()?.items.filter(item => item.columnId === column.id);
                         return <Column column={column} items={items} />
                     }}
                 </For>
