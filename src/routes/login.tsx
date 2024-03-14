@@ -30,6 +30,7 @@ export default function Login(props: RouteSectionProps) {
         <fieldset class="my-2">
           <label class="pr-2">
             <input
+              class="mr-2"
               type="radio"
               name="loginType"
               value="login"
@@ -40,6 +41,7 @@ export default function Login(props: RouteSectionProps) {
           </label>
           <label>
             <input
+              class="mr-2"
               type="radio"
               name="loginType"
               value="register"
@@ -49,18 +51,19 @@ export default function Login(props: RouteSectionProps) {
           </label>
         </fieldset>
         <div>
-          <label class="pr-2" for="email-input">
+          <label class="pr-2 w-10" for="email-input">
             Email
           </label>
           <input
             id="email-input"
             class="shadow appearance-none border rounded mt-4 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
             name="email"
-            placeholder="solid"
+            placeholder="solid@start.com"
+            autofocus
           />
         </div>
         <div>
-          <label class="pr-2" for="password-input">
+          <label class="pr-2 w-10" for="password-input">
             Password&nbsp;
           </label>
           <input

@@ -8,10 +8,6 @@ import NewCard from "./NewCard";
 
 type ColumnProps = {
     column: { name: string; id: string };
-    user: Accessor<{
-        id: string;
-        email: string;
-    } | undefined>;
     items: Item[] | undefined
 }
 
@@ -23,7 +19,7 @@ export default function Column(props: ColumnProps) {
             <div class="p-2">
                 <EditableText
                     text={props.column.name || ''}
-                    saveAction={(value: string) => updateColumNNameAction(props.column.id, value, props.user()?.id!)}
+                    saveAction={(value: string) => updateColumNNameAction(props.column.id, value)}
                 />
             </div>
             <ul class="flex-grow overflow-auto">
