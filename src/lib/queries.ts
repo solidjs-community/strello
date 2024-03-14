@@ -1,10 +1,10 @@
 import { db } from "~/lib/db";
-import { action, redirect } from "@solidjs/router";
+import { action } from "@solidjs/router";
 
-export function deleteCard(id: string, accountId: string) {
+export const deleteCard = action(async () => (id: string, accountId: string) => {
     "use server";
     return db.item.delete({ where: { id, Board: { accountId } } });
-}
+}, "delete-card");
 
 export async function getBoardData(boardId: number, accountId: string) {
     "use server";
@@ -26,12 +26,10 @@ export const updateBoardName = action(async (
     accountId: string,
 ) => {
     "use server";
-    await db.board.update({
+    return db.board.update({
         where: { id: boardId, accountId: accountId },
         data: { name },
     });
-
-    return redirect('/');
 }, "update-board-name");
 
 export function upsertItem(
@@ -51,14 +49,34 @@ export function upsertItem(
     });
 }
 
-export async function updateColumnName(
+export const updateColumnName = action(async (
     id: string,
     name: string,
     accountId: string,
-) {
+) => {
     "use server";
     return db.column.update({
         where: { id, Board: { accountId } },
         data: { name },
     });
-}
+});
+
+export const createColumn = action(async (
+    boardId: number,
+    name: string,
+    id: string,
+    accountId: string,
+) => {
+    "use server";
+    let columnCount = await db.column.count({
+        where: { boardId, Board: { accountId } },
+    });
+    return db.column.create({
+        data: {
+            id,
+            boardId,
+            name,
+            order: columnCount + 1,
+        },
+    });
+}, 'create-column');
