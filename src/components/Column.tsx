@@ -28,7 +28,7 @@ export default function Column(props: ColumnProps) {
                 </For>
             </ul>
 
-            <NewCard />
+            <NewCard columnId={props.column.id} />
 
         </div>
     )

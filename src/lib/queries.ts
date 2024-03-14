@@ -2,8 +2,10 @@ import { db } from "~/lib/db";
 import { action, cache } from "@solidjs/router";
 import { getAuthUser } from "./auth";
 
-export const deleteCard = action(async (id: string, accountId: string) => {
+export const deleteCard = action(async (id: string) => {
     "use server";
+    const accountId = await getAuthUser();
+
     return db.item.delete({ where: { id, Board: { accountId } } });
 }, "delete-card");
 
@@ -43,22 +45,20 @@ export const upsertItem = action(async (formData: FormData) => {
         id: String(formData.get('id')),
         title: String(formData.get('title')),
         order: 1,
-        boardId: 14,
-        columnId: '3432'
+        boardId: Number(formData.get('boardId')),
+        columnId: String(formData.get('columnId'))
     }
 
-    console.log(mutation);
-
-    // return db.item.upsert({
-    //     where: {
-    //         id: mutation.id,
-    //         Board: {
-    //             accountId,
-    //         },
-    //     },
-    //     create: mutation,
-    //     update: mutation,
-    // });
+    return db.item.upsert({
+        where: {
+            id: mutation.id,
+            Board: {
+                accountId,
+            },
+        },
+        create: mutation,
+        update: mutation,
+    });
 }, 'upsert-item');
 
 export const updateColumnName = action(async (
