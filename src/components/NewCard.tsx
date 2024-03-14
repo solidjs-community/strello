@@ -1,4 +1,5 @@
 import { Show, createSignal } from "solid-js";
+import { upsertItem } from "~/lib/queries";
 
 export default function NewCard() {
     const [editing, setEditing] = createSignal(false);
@@ -9,8 +10,10 @@ export default function NewCard() {
                 Add a card
             </button>
         </div>}>
-            <form action="" method="post" class="px-2 py-1 border-t-2 border-b-2 border-transparent">
+            <form action={upsertItem} method="post" class="px-2 py-1 border-t-2 border-b-2 border-transparent">
+                <input name="id" type="hidden" value={crypto.randomUUID()} />
                 <textarea
+                    name="title"
                     autofocus
                     required
                     placeholder="Enter a title for this card"

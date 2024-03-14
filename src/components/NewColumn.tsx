@@ -1,15 +1,20 @@
 import { useAction } from "@solidjs/router";
-import { Show, createSignal } from "solid-js";
+import { Show, createEffect, createSignal, onMount } from "solid-js";
 import { createColumn } from "~/lib/queries";
 
 export function NewColumn(props: {
     boardId: number;
     editInitially: boolean;
-    accountId: string
 }) {
     let [editing, setEditing] = createSignal(props.editInitially);
     let submit = useAction(createColumn);
     let newColumnRef: HTMLInputElement | undefined;
+
+    createEffect(() => {
+        if (editing()) {
+            newColumnRef?.focus();
+        }
+    })
 
     return (
         <Show when={editing()} fallback={<button
@@ -31,7 +36,6 @@ export function NewColumn(props: {
                         props.boardId,
                         String(formData.get('name')),
                         crypto.randomUUID(),
-                        props.accountId
                     );
                     newColumnRef!.value = '';
                 }}

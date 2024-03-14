@@ -4,7 +4,7 @@ import {
   useSubmission,
   type RouteDefinition,
 } from "@solidjs/router";
-import { For } from "solid-js";
+import { For, onMount } from "solid-js";
 import { addBoard, deleteBoard, getBoards, getUser, logout } from "~/lib";
 
 export const route = {
@@ -17,6 +17,12 @@ export const route = {
 export default function Home() {
   const boards = createAsync(() => getBoards());
   const addBoardSubmission = useSubmission(addBoard);
+
+  let inputRef: HTMLInputElement | undefined;
+
+  onMount(() => {
+    inputRef?.focus();
+  })
 
   return (
     <main class="w-full p-4 space-y-2">
@@ -39,6 +45,8 @@ export default function Home() {
             <div class="mt-2">
               <input
                 name="name"
+                ref={inputRef}
+                autofocus
                 type="text"
                 required
                 id="name"
@@ -74,9 +82,7 @@ export default function Home() {
           <h2 class="font-bold mb-2 text-xl">Boards</h2>
           <nav class="flex flex-wrap gap-8">
             <For each={boards()}>
-              {(
-                board // TODO: having this a on top level is messing with the button click bellow
-              ) => (
+              {(board) => (
                 <div>
                   <a
                     class="w-60 h-40 p-4 block border-b-8 shadow rounded hover:shadow-lg bg-white relative"
@@ -89,7 +95,7 @@ export default function Home() {
                   <form action={deleteBoard.with(board.id)} method="post">
                     <button
                       aria-label="Delete board"
-                      class=" hover:text-brand-red"
+                      class="hover:text-brand-red"
                       type="submit"
                     >
                       Delete

@@ -88,7 +88,6 @@ export const deleteBoard = action(async (boardId: number) => {
     where: { id: boardId, accountId: userId },
   });
 
-  return redirect("/");
 }, "delete-board");
 
 export const redirectIfLoggedIn = cache(async () => {
