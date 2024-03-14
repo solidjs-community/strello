@@ -1,12 +1,12 @@
 import { db } from "~/lib/db";
-import { action } from "@solidjs/router";
+import { action, cache } from "@solidjs/router";
 
 export const deleteCard = action(async () => (id: string, accountId: string) => {
     "use server";
     return db.item.delete({ where: { id, Board: { accountId } } });
 }, "delete-card");
 
-export async function getBoardData(boardId: number, accountId: string) {
+export const getBoardData = cache((boardId: number, accountId: string) => {
     "use server";
     return db.board.findUnique({
         where: {
@@ -18,7 +18,7 @@ export async function getBoardData(boardId: number, accountId: string) {
             columns: { orderBy: { order: "asc" } },
         },
     });
-}
+}, 'get-board-data');
 
 export const updateBoardName = action(async (
     boardId: number,

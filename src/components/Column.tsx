@@ -2,14 +2,17 @@ import EditableText from "./EditableText";
 import { updateColumnName } from "~/lib/queries";
 import { useAction } from "@solidjs/router";
 import Card from "./Card";
-import { Accessor } from "solid-js";
+import { Accessor, For, Show, createSignal } from "solid-js";
+import { Item } from "@prisma/client";
+import NewCard from "./NewCard";
 
 type ColumnProps = {
     column: { name: string; id: string };
     user: Accessor<{
         id: string;
         email: string;
-    } | undefined>
+    } | undefined>;
+    items: Item[] | undefined
 }
 
 export default function Column(props: ColumnProps) {
@@ -24,11 +27,13 @@ export default function Column(props: ColumnProps) {
                 />
             </div>
             <ul class="flex-grow overflow-auto">
-                <Card />
+                <For each={props.items}>
+                    {(item) => (<Card item={item} />)}
+                </For>
             </ul>
-            <div class="p-2">
-                <button type="button" class="flex items-center gap-2 rounded-lg text-left w-full p-2 font-medium text-slate-500 hover:bg-slate-200 focus:bg-slate-200">Add a card</button>
-            </div>
+
+            <NewCard />
+
         </div>
     )
 }
