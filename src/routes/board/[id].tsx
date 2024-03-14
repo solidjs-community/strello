@@ -1,4 +1,4 @@
-import { RouteDefinition, createAsync, useAction, useSubmission } from "@solidjs/router";
+import { RouteDefinition, createAsync, createAsyncStore, useAction, useSubmission } from "@solidjs/router";
 import { For } from "solid-js";
 import EditableText from "~/components/EditableText";
 import { NewColumn } from "~/components/NewColumn";
@@ -10,10 +10,9 @@ export const route = {
 } satisfies RouteDefinition;
 
 export default function Board({ params }: any) {
-    const board = createAsync(() => getBoardData(+params.id));
+    const board = createAsyncStore(() => getBoardData(+params.id));
 
     const updateBoardNameAction = useAction(updateBoardName);
-    const updateBoardNameSubmission = useSubmission(updateBoardName); // use optimistic update name?
 
     return (
         <div class="h-full min-h-0 flex flex-col overflow-x-scroll" style="background-color:#cbd5e1">
@@ -28,7 +27,7 @@ export default function Board({ params }: any) {
             <div class="flex flex-grow min-h-0 h-full items-start gap-4 px-8 pb-4">
                 <For each={board()?.columns}>
                     {(column) => {
-                        const items = board()?.items.filter(item => item.columnId === column.id);
+                        const items = () => board()?.items.filter(item => item.columnId === column.id);
                         return <Column column={column} items={items} />
                     }}
                 </For>
