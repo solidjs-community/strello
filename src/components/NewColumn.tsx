@@ -1,5 +1,5 @@
 import { useAction } from "@solidjs/router";
-import { Show, createEffect, createSignal, onMount } from "solid-js";
+import { Show, createEffect, createSignal } from "solid-js";
 import { createColumn } from "~/lib/queries";
 
 export function NewColumn(props: {
