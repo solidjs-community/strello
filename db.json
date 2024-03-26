@@ -1,0 +1,42 @@
+{
+  "board": {
+    "id": 0,
+    "title": "Board 0"
+  },
+  "columns": [
+    {
+      "id": "9a2fd0c6-29af-4154-aeab-e67c6670ce4c",
+      "board": 0,
+      "title": "asdas",
+      "order": 0
+    },
+    {
+      "id": "a7def0ff-69a2-4143-a325-ba8b1266d3fd",
+      "board": 0,
+      "title": "123123",
+      "order": 3
+    },
+    {
+      "id": "8d6debf6-02b2-46ab-9faf-42c3bdbc1373",
+      "board": 0,
+      "title": "123123",
+      "order": 2
+    }
+  ],
+  "notes": [
+    {
+      "id": "df3cf8b8-6c2d-40ba-959d-aab93462bec2",
+      "board": "board",
+      "column": "a7def0ff-69a2-4143-a325-ba8b1266d3fd",
+      "order": 1,
+      "body": "123123"
+    },
+    {
+      "id": "6b2bd669-fbb6-4c89-885a-0e616f088a5b",
+      "board": "board",
+      "column": "9a2fd0c6-29af-4154-aeab-e67c6670ce4c",
+      "order": 2,
+      "body": "321321"
+    }
+  ]
+}
