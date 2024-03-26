@@ -12,7 +12,10 @@
     "@types/node": "^20.10.1",
     "autoprefixer": "^10.4.16",
     "postcss": "^8.4.31",
-    "tailwindcss": "^3.4.1"
+    "tailwindcss": "^3.4.1",
+    "@types/better-sqlite3": "^7.6.9",
+    "@unscatty/unocss-preset-daisy": "^1.0.0",
+    "unocss": "^0.58.5"
   },
   "dependencies": {
     "@prisma/client": "^5.7.0",
@@ -21,7 +24,16 @@
     "@solidjs/start": "^0.7.1",
     "prisma": "^5.7.0",
     "solid-js": "^1.8.15",
-    "vinxi": "^0.3.10"
+    "vinxi": "^0.3.10",
+    "@formkit/auto-animate": "^0.8.1",
+    "@unocss/reset": "^0.58.5",
+    "better-sqlite3": "^9.4.3",
+    "immer": "^10.0.4",
+    "kysely": "^0.27.3",
+    "lowdb": "^7.0.1",
+    "solid-icons": "^1.1.0",
+    "unimport": "^3.7.1",
+    "unocss-preset-theme": "^0.12.0"
   },
   "engines": {
     "node": ">=18"
