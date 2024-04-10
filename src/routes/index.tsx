@@ -3,7 +3,7 @@ import {
   useSubmission,
   type RouteDefinition,
 } from "@solidjs/router";
-import { For, onMount } from "solid-js";
+import { For, Show, onMount } from "solid-js";
 import { addBoard, deleteBoard, getBoards, getUser, logout } from "~/lib";
 
 export const route = {
@@ -49,7 +49,7 @@ export default function Home() {
                 type="text"
                 required
                 id="name"
-                class="form-input block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-brand-blue sm:text-sm sm:leading-6"
+                class="text-white px-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-brand-blue sm:text-sm sm:leading-6"
               />
             </div>
           </div>
@@ -57,7 +57,7 @@ export default function Home() {
             <div class="flex items-center gap-1">
               <label
                 for="board-color"
-                class="block text-sm font-medium leading-6 text-gray-900"
+                class="block text-sm font-medium leading-6 text-white"
               >
                 Color
               </label>
@@ -80,29 +80,31 @@ export default function Home() {
         <div class="p-8">
           <h2 class="font-bold mb-2 text-xl">Boards</h2>
           <nav class="flex flex-wrap gap-8">
-            <For each={boards()}>
-              {(board) => (
-                <div>
-                  <a
-                    class="w-60 h-40 p-4 block border-b-8 shadow rounded hover:shadow-lg bg-white relative"
-                    href={`/board/${board.id}`}
-                    style={`border-color: ${board.color}`}
-                  >
-                    <div class="font-bold">{board.name}</div>
-
-                  </a>
-                  <form action={deleteBoard.with(board.id)} method="post">
-                    <button
-                      aria-label="Delete board"
-                      class="hover:text-brand-red"
-                      type="submit"
+            <Show when={boards()?.length} fallback="No boards found.">
+              <For each={boards()}>
+                {(board) => (
+                  <div>
+                    <a
+                      class="w-60 h-40 p-4 block border-b-8 shadow rounded hover:shadow-lg bg-white relative"
+                      href={`/board/${board.id}`}
+                      style={`border-color: ${board.color}`}
                     >
-                      Delete
-                    </button>
-                  </form>
-                </div>
-              )}
-            </For>
+                      <div class="font-bold text-black">{board.name}</div>
+
+                    </a>
+                    <form action={deleteBoard.with(board.id)} method="post">
+                      <button
+                        aria-label="Delete board"
+                        class="hover:text-brand-red"
+                        type="submit"
+                      >
+                        Delete
+                      </button>
+                    </form>
+                  </div>
+                )}
+              </For>
+            </Show>
           </nav>
         </div>
       </div>
