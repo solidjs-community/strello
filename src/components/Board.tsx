@@ -113,11 +113,11 @@ export type Actions = {
 
 const BoardContext = createContext<
   | {
-      board: Board;
-      columns: Column[];
-      notes: Note[];
-      actions: Actions;
-    }
+    board: Board;
+    columns: Column[];
+    notes: Note[];
+    actions: Actions;
+  }
   | undefined
 >();
 
@@ -330,7 +330,7 @@ export function Board(props: { board: BoardData; actions: Actions }) {
         <For each={sortedColumns()}>
           {(column, i) => (
             <>
-              <Column column={column} />
+              <Column column={column} board={props.board.board} />
               <ColumnGap
                 left={sortedColumns()[i()]}
                 right={sortedColumns()[i() + 1]}
@@ -390,7 +390,7 @@ function ColumnGap(props: { left?: Column; right?: Column }) {
   );
 }
 
-function Column(props: { column: Column }) {
+function Column(props: { column: Column, board: Board }) {
   const ctx = useBoard();
 
   let parent: HTMLDivElement | undefined;
@@ -481,6 +481,7 @@ function Column(props: { column: Column }) {
       <div class="py-2" />
       <AddNote
         column={props.column.id}
+        board={+props.board.id}
         length={ctx.notes.length}
         onAdd={() => {
           parent && (parent.scrollTop = parent.scrollHeight);
@@ -613,7 +614,7 @@ function Note(props: { note: Note; previous?: Note; next?: Note }) {
   );
 }
 
-function AddNote(props: { column: ID; length: number; onAdd: () => void }) {
+function AddNote(props: { column: ID; length: number; onAdd: () => void, board: number }) {
   const { actions } = useBoard();
   const [active, setActive] = createSignal(false);
   const addNote = useAction(actions.createNote);
@@ -628,7 +629,7 @@ function AddNote(props: { column: ID; length: number; onAdd: () => void }) {
               e.preventDefault();
               addNote({
                 id: crypto.randomUUID(),
-                board: "board",
+                board: String(props.board),
                 column: props.column,
                 body: inputRef?.value ?? "Note",
                 order: props.length + 1,
