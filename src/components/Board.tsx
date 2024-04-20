@@ -453,9 +453,12 @@ function Column(props: { column: Column, board: Board }) {
         <input
           class="input input-ghost text-2xl font-bold w-full"
           value={props.column.title}
-          onInput={(e) =>
-            renameAction(props.column.id, e.target.value, new Date().getTime())
-          }
+          required
+          onInput={(e) => {
+            if (e.target.reportValidity()) {
+              renameAction(props.column.id, e.target.value, new Date().getTime())
+            }
+          }}
         />
         <button
           class="btn btn-ghost btn-sm btn-circle"
