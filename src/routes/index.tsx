@@ -1,3 +1,4 @@
+import { Title } from "@solidjs/meta";
 import {
   createAsync,
   useSubmission,
@@ -25,6 +26,7 @@ export default function Home() {
 
   return (
     <main class="w-full p-4 space-y-2">
+      <Title>Boards | Strello</Title>
       <form action={logout} method="post">
         <button name="logout" type="submit">
           Logout

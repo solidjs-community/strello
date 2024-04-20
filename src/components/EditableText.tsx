@@ -8,7 +8,7 @@ export default function EditableText(props: { text: string; saveAction: (value: 
                 onClick={() => setShowEdit(true)}
                 aria-label={`Edit ${props.text}`}
                 type="button"
-                class="w-full text-2xl font-medium block rounded-lg text-left border border-transparent py-1 px-2 text-slate-800">
+                class="w-full text-2xl font-medium block rounded-lg text-left border border-transparent py-1 px-2">
                 {props.text}
             </button>
         }>
@@ -19,7 +19,7 @@ export default function EditableText(props: { text: string; saveAction: (value: 
                 setShowEdit(false);
             }}>
                 <input
-                    class="text-2xl font-medium block rounded-lg text-left border border-transparent py-1 px-2 text-slate-800"
+                    class="text-2xl font-medium block rounded-lg text-left border border-transparent py-1 px-2"
                     type="text"
                     name="editable_text"
                     value={props.text}
