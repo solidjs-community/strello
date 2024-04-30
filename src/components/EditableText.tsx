@@ -21,11 +21,14 @@ export default function EditableText(props: { text: string; saveAction: (value: 
                 <input
                     class="text-2xl font-medium block rounded-lg text-left border border-transparent py-1 px-2"
                     type="text"
+                    required
                     name="editable_text"
                     value={props.text}
                     onBlur={(e) => {
-                        props.saveAction(e.target.value);
-                        setShowEdit(false);
+                        if (e.target.checkValidity()) {
+                            props.saveAction(e.target.value);
+                            setShowEdit(false);
+                        }
                     }}
 
                 />
