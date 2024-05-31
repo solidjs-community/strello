@@ -1,5 +1,5 @@
 {
-  "name": "example-with-prisma",
+  "name": "solid-trellix",
   "type": "module",
   "scripts": {
     "dev": "vinxi dev",
@@ -9,31 +9,33 @@
   },
   "devDependencies": {
     "@tailwindcss/forms": "^0.5.7",
+    "@types/better-sqlite3": "^7.6.9",
     "@types/node": "^20.10.1",
+    "@unscatty/unocss-preset-daisy": "^1.0.0",
     "autoprefixer": "^10.4.16",
     "postcss": "^8.4.31",
     "tailwindcss": "^3.4.1",
-    "@types/better-sqlite3": "^7.6.9",
-    "@unscatty/unocss-preset-daisy": "^1.0.0",
     "unocss": "^0.58.5"
   },
   "dependencies": {
+    "@formkit/auto-animate": "^0.8.1",
+    "@libsql/client": "^0.6.1",
+    "@prisma/adapter-libsql": "^5.14.0",
     "@prisma/client": "^5.7.0",
     "@solidjs/meta": "^0.29.3",
     "@solidjs/router": "^0.13",
     "@solidjs/start": "^0.7.1",
-    "prisma": "^5.7.0",
-    "solid-js": "^1.8.15",
-    "vinxi": "^0.3.10",
-    "@formkit/auto-animate": "^0.8.1",
     "@unocss/reset": "^0.58.5",
     "better-sqlite3": "^9.4.3",
     "immer": "^10.0.4",
     "kysely": "^0.27.3",
     "lowdb": "^7.0.1",
+    "prisma": "^5.7.0",
     "solid-icons": "^1.1.0",
+    "solid-js": "^1.8.15",
     "unimport": "^3.7.1",
-    "unocss-preset-theme": "^0.12.0"
+    "unocss-preset-theme": "^0.12.0",
+    "vinxi": "^0.3.10"
   },
   "engines": {
     "node": ">=18"
