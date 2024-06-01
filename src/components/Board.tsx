@@ -650,7 +650,6 @@ function AddNote(props: { column: ID; length: number; onAdd: () => void, board: 
               class="textarea"
               placeholder="Add a Note"
               required
-              onBlur={() => setActive(false)}
             />
             <div class="space-x-2">
               <button class="btn btn-success" type="submit">
