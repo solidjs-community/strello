@@ -5,7 +5,7 @@ import {
   type RouteDefinition,
 } from "@solidjs/router";
 import { For, Show, onMount } from "solid-js";
-import { addBoard, deleteBoard, getBoards, getUser, logout } from "~/lib";
+import { addBoard, deleteBoard, getBoards, getUser } from "~/lib";
 
 export const route = {
   load: () => {
@@ -27,13 +27,8 @@ export default function Home() {
 
   return (
     <main class="w-full p-4 space-y-2">
-      <Show when={user()} fallback="Please login">
+      <Show when={user()}>
         <Title>Boards | Strello</Title>
-        <form action={logout} method="post">
-          <button name="logout" type="submit">
-            Logout
-          </button>
-        </form>
 
         <div class="h-full">
           <form action={addBoard} method="post" class="p-8 max-w-md">
@@ -53,7 +48,7 @@ export default function Home() {
                   type="text"
                   required
                   id="name"
-                  class="text-white px-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-brand-blue sm:text-sm sm:leading-6"
+                  class="text-white px-2 block w-full rounded-md border-0 py-1.5 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-brand-blue sm:text-sm sm:leading-6"
                 />
               </div>
             </div>

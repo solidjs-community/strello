@@ -324,7 +324,7 @@ export function Board(props: { board: BoardData; actions: Actions }) {
         ref={(el) => {
           scrollContainerRef = el;
         }}
-        class="h-[calc(100vh-100px)] min-w-full overflow-x-auto overflow-y-hidden p-12 pb-0 flex flex-start items-start flex-nowrap"
+        class="h-[calc(100vh-140px)] min-w-full overflow-x-auto overflow-y-hidden p-12 px-0 flex flex-start items-start flex-nowrap"
       >
         <ColumnGap right={sortedColumns()[0]} />
         <For each={sortedColumns()}>

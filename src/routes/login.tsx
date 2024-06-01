@@ -56,10 +56,11 @@ export default function Login(props: RouteSectionProps) {
           </label>
           <input
             id="email-input"
-            class="text-white shadow appearance-none border rounded mt-4 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            class="text-white shadow appearance-none border rounded mt-4 py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
             name="email"
             placeholder="solidstart@start.com"
             autofocus
+            autocomplete="email"
           />
         </div>
         <div>
@@ -68,10 +69,11 @@ export default function Login(props: RouteSectionProps) {
           </label>
           <input
             id="password-input"
-            class="text-white shadow appearance-none border rounded mt-4 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            class="text-white shadow appearance-none border rounded mt-4 py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
             name="password"
             type="password"
             placeholder="start123"
+            autocomplete="current-password"
           />
         </div>
         <label class="pr-2 w-24 inline-block" for="password-input">
