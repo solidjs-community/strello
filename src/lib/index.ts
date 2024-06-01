@@ -18,7 +18,6 @@ export const getUser = cache(async () => {
     if (!user) throw new Error("User not found");
     return { id: user.id, email: user.email };
   } catch {
-    await logoutSession();
     throw redirect("/login");
   }
 }, "user");

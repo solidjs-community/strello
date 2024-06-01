@@ -58,7 +58,7 @@ export default function Login(props: RouteSectionProps) {
             id="email-input"
             class="text-white shadow appearance-none border rounded mt-4 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
             name="email"
-            placeholder="solid@start.com"
+            placeholder="solidstart@start.com"
             autofocus
           />
         </div>
@@ -71,7 +71,7 @@ export default function Login(props: RouteSectionProps) {
             class="text-white shadow appearance-none border rounded mt-4 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
             name="password"
             type="password"
-            placeholder="start"
+            placeholder="start123"
           />
         </div>
         <label class="pr-2 w-24 inline-block" for="password-input">

@@ -324,7 +324,7 @@ export function Board(props: { board: BoardData; actions: Actions }) {
         ref={(el) => {
           scrollContainerRef = el;
         }}
-        class="min-w-full h-full overflow-x-auto overflow-y-hidden p-12 flex flex-start items-start flex-nowrap"
+        class="min-w-full overflow-x-auto overflow-y-hidden p-12 flex flex-start items-start flex-nowrap"
       >
         <ColumnGap right={sortedColumns()[0]} />
         <For each={sortedColumns()}>
@@ -454,7 +454,7 @@ function Column(props: { column: Column, board: Board }) {
           class="input input-ghost text-2xl font-bold w-full"
           value={props.column.title}
           required
-          onInput={(e) => {
+          onBlur={(e) => {
             if (e.target.reportValidity()) {
               renameAction(props.column.id, e.target.value, new Date().getTime())
             }
@@ -650,6 +650,7 @@ function AddNote(props: { column: ID; length: number; onAdd: () => void, board: 
               class="textarea"
               placeholder="Add a Note"
               required
+              onBlur={() => setActive(false)}
             />
             <div class="space-x-2">
               <button class="btn btn-success" type="submit">
