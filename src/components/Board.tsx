@@ -412,7 +412,7 @@ function Column(props: { column: Column, board: Board }) {
       draggable="true"
       class="w-full h-full max-w-[300px] shrink-0 card"
       style={{
-        border: acceptDrop() === true ? "2px solid red" : "none",
+        border: acceptDrop() === true ? "2px solid red" : "2px solid transparent",
       }}
       onDragStart={(e) => {
         e.dataTransfer?.setData(DragTypes.Column, props.column.id);
@@ -457,6 +457,11 @@ function Column(props: { column: Column, board: Board }) {
           onBlur={(e) => {
             if (e.target.reportValidity()) {
               renameAction(props.column.id, e.target.value, new Date().getTime())
+            }
+          }}
+          onKeyDown={(e) => {
+            if (e.keyCode === 13) {
+              e.target.blur()
             }
           }}
         />
@@ -513,8 +518,8 @@ function Note(props: { note: Note; previous?: Note; next?: Note }) {
     <div
       style={{
         opacity: isBeingDragged() ? 0.25 : 1,
-        "border-top": acceptDrop() === "top" ? "2px solid red" : "none",
-        "border-bottom": acceptDrop() === "bottom" ? "2px solid red" : "none",
+        "border-top": acceptDrop() === "top" ? "2px solid red" : "2px solid transparent",
+        "border-bottom": acceptDrop() === "bottom" ? "2px solid red" : "2px solid transparent",
       }}
       draggable="true"
       class="card card-side px-1 py-2 w-full bg-base-200 text-lg flex justify-between items-center space-x-1"
