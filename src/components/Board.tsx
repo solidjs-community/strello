@@ -324,7 +324,7 @@ export function Board(props: { board: BoardData; actions: Actions }) {
         ref={(el) => {
           scrollContainerRef = el;
         }}
-        class="min-w-full overflow-x-auto overflow-y-hidden p-12 flex flex-start items-start flex-nowrap"
+        class="h-[calc(100vh-100px)] min-w-full overflow-x-auto overflow-y-hidden p-12 pb-0 flex flex-start items-start flex-nowrap"
       >
         <ColumnGap right={sortedColumns()[0]} />
         <For each={sortedColumns()}>
@@ -359,7 +359,7 @@ function ColumnGap(props: { left?: Column; right?: Column }) {
       class="w-10 h-full mx-1 rounded-lg transition"
       style={{
         background: "red",
-        opacity: active() ? 0.2 : 0,
+        opacity: active() ? 0.2 : 0
       }}
       onDragEnter={(e) => e.preventDefault()}
       onDragOver={(e) => {

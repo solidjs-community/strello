@@ -25,7 +25,7 @@ export default function Page(props: RouteSectionProps) {
         />
       </h1>
 
-      <div class="h-screen overflow-hidden">
+      <div>
         <Board
           board={board()!}
           actions={{
