@@ -1,7 +1,6 @@
 import { Title } from "@solidjs/meta";
 import {
   createAsync,
-  useNavigate,
   useSubmission,
   type RouteDefinition,
 } from "@solidjs/router";
@@ -16,13 +15,6 @@ export const route = {
 } satisfies RouteDefinition;
 
 export default function Home() {
-  const user = createAsync(() => getUser(), { deferStream: true });
-  const navigate = useNavigate();
-
-  if (!user()) {
-    navigate('/login');
-  }
-
   const boards = createAsync(() => getBoards());
   const addBoardSubmission = useSubmission(addBoard);
 
