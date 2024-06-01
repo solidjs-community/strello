@@ -39,7 +39,7 @@ export default function Home() {
             <h2 class="font-bold mb-2 text-xl">New Board</h2>
             <label
               for="name"
-              class="block text-sm font-medium leading-6 text-gray-900"
+              class="block text-sm font-medium leading-6 text-white"
             >
               Name
             </label>

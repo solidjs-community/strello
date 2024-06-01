@@ -84,7 +84,7 @@ export default function Login(props: RouteSectionProps) {
           {register() ? "Register" : "Login"}
         </button>
         <Show when={loggingIn.result}>
-          <p class="mt-2 text-red-500" role="alert" id="error-message">
+          <p class="mt-2 text-red-500 text-center" role="alert" id="error-message">
             {loggingIn.result!.message}
           </p>
         </Show>
