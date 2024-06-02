@@ -4,6 +4,7 @@ import {
   useSubmission,
   type RouteDefinition,
 } from "@solidjs/router";
+import { BsTrash } from "solid-icons/bs";
 import { For, Show, onMount } from "solid-js";
 import { addBoard, deleteBoard, getBoards, getUser } from "~/lib";
 
@@ -26,14 +27,14 @@ export default function Home() {
   })
 
   return (
-    <main class="w-full p-4 space-y-2">
+    <main class="w-full px-8 space-y-2">
       <Show when={user()}>
         <Title>Boards | Strello</Title>
 
         <div class="h-full">
-          <form action={addBoard} method="post" class="p-8 max-w-md">
+          <form action={addBoard} method="post" class="max-w-md">
             <div>
-              <h2 class="font-bold mb-2 text-xl">New Board</h2>
+              <h2 class="w-full text-2xl font-medium block rounded-lg text-left border border-transparent pb-4">New Board</h2>
               <label
                 for="name"
                 class="block text-sm font-medium leading-6 text-white"
@@ -65,7 +66,7 @@ export default function Home() {
                   name="color"
                   type="color"
                   class="bg-transparent"
-                  value="#cbd5e1"
+                  value="#A2DEFF"
                 />
               </div>
               <button
@@ -76,28 +77,29 @@ export default function Home() {
               </button>
             </div>
           </form>
-          <div class="p-8">
+          <div class="py-8">
             <h2 class="font-bold mb-2 text-xl">Boards</h2>
             <nav class="flex flex-wrap gap-8">
               <Show when={boards()?.length} fallback="No boards found.">
                 <For each={boards()}>
                   {(board) => (
-                    <div>
+                    <div class="relative">
                       <a
-                        class="w-60 h-40 p-4 block border-b-8 shadow rounded hover:shadow-lg bg-white relative"
+                        class="w-60 h-40 p-4 block border-b-8 shadow rounded hover:shadow-lg bg-base-200 relative "
                         href={`/board/${board.id}`}
                         style={`border-color: ${board.color}`}
                       >
-                        <div class="font-bold text-black">{board.name}</div>
+                        <div class="font-bold text-white">{board.name}</div>
 
                       </a>
-                      <form action={deleteBoard.with(board.id)} method="post">
+
+                      <form class="absolute top-2.5 right-2.5" action={deleteBoard.with(board.id)} method="post">
                         <button
                           aria-label="Delete board"
-                          class="hover:text-brand-red"
+                          class="btn btn-ghost btn-sm btn-circle"
                           type="submit"
                         >
-                          Delete
+                          <BsTrash />
                         </button>
                       </form>
                     </div>

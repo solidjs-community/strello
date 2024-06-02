@@ -324,7 +324,7 @@ export function Board(props: { board: BoardData; actions: Actions }) {
         ref={(el) => {
           scrollContainerRef = el;
         }}
-        class="h-[calc(100vh-140px)] min-w-full overflow-x-auto overflow-y-hidden p-12 px-0 flex flex-start items-start flex-nowrap"
+        class="pb-8 h-[calc(100vh-160px)] min-w-full overflow-x-auto overflow-y-hidden flex flex-start items-start flex-nowrap"
       >
         <ColumnGap right={sortedColumns()[0]} />
         <For each={sortedColumns()}>
@@ -602,7 +602,7 @@ function Note(props: { note: Note; previous?: Note; next?: Note }) {
         style={{
           resize: "none",
         }}
-        onInput={(e) =>
+        onBlur={(e) =>
           updateAction(
             props.note.id,
             (e.target as HTMLTextAreaElement).value,

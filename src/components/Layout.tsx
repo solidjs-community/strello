@@ -40,7 +40,7 @@ export default function Layout(props: ParentProps) {
                             <DiscordIcon class="h-6 w-6 fill-slate-800 dark:fill-slate-200 group-hover:dark:fill-white dark:group-hover:fill-slate-300" />
                         </A>
 
-                        <Show when={user()}>
+                        <Show when={user()} fallback={<A href="/login">Login</A>}>
                             <form action={logout} method="post">
                                 <button name="logout" type="submit">
                                     Logout
