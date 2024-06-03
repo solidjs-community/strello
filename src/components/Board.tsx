@@ -8,6 +8,7 @@ import {
   createMemo,
   createSignal,
   on,
+  onMount,
   useContext,
 } from "solid-js";
 import { Action, useAction, useSubmissions } from "@solidjs/router";
@@ -688,6 +689,11 @@ function AddColumn(props: { board: ID; onAdd: () => void }) {
   const addColumn = useAction(actions.createColumn);
 
   let inputRef: HTMLInputElement | undefined;
+  let plusRef: HTMLButtonElement | undefined;
+
+  onMount(() => {
+    plusRef?.focus();
+  })
 
   return (
     <Switch>
@@ -730,7 +736,7 @@ function AddColumn(props: { board: ID; onAdd: () => void }) {
         </form>
       </Match>
       <Match when={!active()}>
-        <button class="btn btn-circle" onClick={() => setActive(true)}>
+        <button ref={plusRef} class="btn btn-circle" onClick={() => setActive(true)}>
           <BsPlus size={10} />
         </button>
       </Match>
