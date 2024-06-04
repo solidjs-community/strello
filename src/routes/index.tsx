@@ -17,8 +17,17 @@ export const route = {
 
 export default function Home() {
   const user = createAsync(() => getUser(), { deferStream: true });
-  const boards = createAsync(() => getBoards());
+  const serverBoards = createAsync(() => getBoards());
   const addBoardSubmission = useSubmission(addBoard);
+  const deleteBoardSubmission = useSubmission(deleteBoard);;
+
+  const boards = () => {
+    if (deleteBoardSubmission.pending) {
+      return (serverBoards()?.filter(b => b.id !== deleteBoardSubmission?.input[0]));
+    }
+
+    return serverBoards();
+  }
 
   let inputRef: HTMLInputElement | undefined;
 
