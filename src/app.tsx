@@ -12,9 +12,11 @@ export default function App() {
       <Title>Strello</Title>
       <Router
         root={props => (
-          <Layout>
-            <Suspense>{props.children}</Suspense>
-          </Layout>
+          <Suspense>
+            <Layout>
+              {props.children}
+            </Layout>
+          </Suspense>
         )}
       >
         <FileRoutes />
