@@ -1,42 +1,27 @@
+import { Action, useAction, useSubmissions } from "@solidjs/router";
+import { BsPlus, BsTrash } from "solid-icons/bs";
+import { RiEditorDraggable } from "solid-icons/ri";
 import {
   For,
   Match,
   Switch,
   batch,
-  createContext,
   createEffect,
   createMemo,
   createSignal,
-  on,
   onMount,
-  useContext,
 } from "solid-js";
-import { Action, useAction, useSubmissions } from "@solidjs/router";
-import { BsPlus, BsThreeDotsVertical, BsTrash } from "solid-icons/bs";
-import { RiEditorDraggable } from "solid-icons/ri";
 import { createStore, reconcile } from "solid-js/store";
-import { createAutoAnimate } from "@formkit/auto-animate/solid";
 import {
   createColumn,
-  renameColumn,
-  moveColumn,
+  createNote,
   deleteColumn,
   deleteNote,
-  createNote,
   editNote,
+  moveColumn,
   moveNote,
+  renameColumn,
 } from "~/lib/queries";
-
-const actions = {
-  createColumn,
-  renameColumn,
-  moveColumn,
-  deleteColumn,
-  createNote,
-  editNote,
-  moveNote,
-  deleteNote,
-};
 
 enum DragTypes {
   Note = "application/note",
@@ -133,21 +118,6 @@ export type Actions = {
   deleteNote: Action<[id: ID, timestamp: number], boolean>;
 };
 
-const BoardContext = createContext<
-  | {
-      board: Board;
-      columns: Column[];
-      notes: Note[];
-    }
-  | undefined
->();
-
-const useBoard = () => {
-  const context = useContext(BoardContext);
-  if (!context) throw new Error("No board context provided. This is a bug.");
-  return context;
-};
-
 export function Board(props: { board: BoardData }) {
   const [boardStore, setBoardStore] = createStore({
     board: props.board.board,
@@ -155,14 +125,14 @@ export function Board(props: { board: BoardData }) {
     notes: props.board.notes,
   });
 
-  const createNoteSubmission = useSubmissions(actions.createNote);
-  const editNoteSubmission = useSubmissions(actions.editNote);
-  const moveNoteSubmission = useSubmissions(actions.moveNote);
-  const deleteNoteSubmission = useSubmissions(actions.deleteNote);
-  const createColumnSubmission = useSubmissions(actions.createColumn);
-  const renameColumnSubmission = useSubmissions(actions.renameColumn);
-  const moveColumnSubmission = useSubmissions(actions.moveColumn);
-  const deleteColumnSubmission = useSubmissions(actions.deleteColumn);
+  const createNoteSubmission = useSubmissions(createNote);
+  const editNoteSubmission = useSubmissions(editNote);
+  const moveNoteSubmission = useSubmissions(moveNote);
+  const deleteNoteSubmission = useSubmissions(deleteNote);
+  const createColumnSubmission = useSubmissions(createColumn);
+  const renameColumnSubmission = useSubmissions(renameColumn);
+  const moveColumnSubmission = useSubmissions(moveColumn);
+  const deleteColumnSubmission = useSubmissions(deleteColumn);
 
   createEffect(() => {
     const mutations: any[] = [];
@@ -339,41 +309,42 @@ export function Board(props: { board: BoardData }) {
   let scrollContainerRef: HTMLDivElement | undefined;
 
   return (
-    <BoardContext.Provider value={boardStore}>
-      <div
-        ref={(el) => {
-          scrollContainerRef = el;
+    <div
+      ref={(el) => {
+        scrollContainerRef = el;
+      }}
+      class="pb-8 h-[calc(100vh-160px)] min-w-full overflow-x-auto overflow-y-hidden flex flex-start items-start flex-nowrap"
+    >
+      <ColumnGap right={sortedColumns()[0]} />
+      <For each={sortedColumns()}>
+        {(column, i) => (
+          <>
+            <Column
+              column={column}
+              board={props.board.board}
+              notes={props.board.notes}
+            />
+            <ColumnGap
+              left={sortedColumns()[i()]}
+              right={sortedColumns()[i() + 1]}
+            />
+          </>
+        )}
+      </For>
+      <AddColumn
+        board={props.board.board.id}
+        onAdd={() => {
+          scrollContainerRef &&
+            (scrollContainerRef.scrollLeft = scrollContainerRef.scrollWidth);
         }}
-        class="pb-8 h-[calc(100vh-160px)] min-w-full overflow-x-auto overflow-y-hidden flex flex-start items-start flex-nowrap"
-      >
-        <ColumnGap right={sortedColumns()[0]} />
-        <For each={sortedColumns()}>
-          {(column, i) => (
-            <>
-              <Column column={column} board={props.board.board} />
-              <ColumnGap
-                left={sortedColumns()[i()]}
-                right={sortedColumns()[i() + 1]}
-              />
-            </>
-          )}
-        </For>
-        <AddColumn
-          board={props.board.board.id}
-          onAdd={() => {
-            scrollContainerRef &&
-              (scrollContainerRef.scrollLeft = scrollContainerRef.scrollWidth);
-          }}
-        />
-      </div>
-    </BoardContext.Provider>
+      />
+    </div>
   );
 }
 
 function ColumnGap(props: { left?: Column; right?: Column }) {
   const [active, setActive] = createSignal(false);
-  const ctx = useBoard();
-  const moveColumnAction = useAction(actions.moveColumn);
+  const moveColumnAction = useAction(moveColumn);
   return (
     <div
       class="w-10 h-full mx-1 rounded-lg transition"
@@ -410,19 +381,17 @@ function ColumnGap(props: { left?: Column; right?: Column }) {
   );
 }
 
-function Column(props: { column: Column; board: Board }) {
-  const ctx = useBoard();
-
+function Column(props: { column: Column; board: Board; notes: Note[] }) {
   let parent: HTMLDivElement | undefined;
 
-  const renameAction = useAction(actions.renameColumn);
-  const deleteAction = useAction(actions.deleteColumn);
-  const moveNoteAction = useAction(actions.moveNote);
+  const renameAction = useAction(renameColumn);
+  const deleteAction = useAction(deleteColumn);
+  const moveNoteAction = useAction(moveNote);
 
   const [acceptDrop, setAcceptDrop] = createSignal<boolean>(false);
 
   const filteredNotes = createMemo(() =>
-    ctx.notes
+    props.notes
       .filter((n) => n.column === props.column.id)
       .sort((a, b) => a.order - b.order)
   );
@@ -486,6 +455,7 @@ function Column(props: { column: Column; board: Board }) {
           }}
           onKeyDown={(e) => {
             if (e.keyCode === 13) {
+              // @ts-expect-error maybe use currentTarget?
               e.target.blur();
             }
           }}
@@ -515,7 +485,7 @@ function Column(props: { column: Column; board: Board }) {
       <AddNote
         column={props.column.id}
         board={+props.board.id}
-        length={ctx.notes.length}
+        length={props.notes.length}
         onAdd={() => {
           parent && (parent.scrollTop = parent.scrollHeight);
         }}
@@ -525,9 +495,9 @@ function Column(props: { column: Column; board: Board }) {
 }
 
 function Note(props: { note: Note; previous?: Note; next?: Note }) {
-  const updateAction = useAction(actions.editNote);
-  const deleteAction = useAction(actions.deleteNote);
-  const moveNoteAction = useAction(actions.moveNote);
+  const updateAction = useAction(editNote);
+  const deleteAction = useAction(deleteNote);
+  const moveNoteAction = useAction(moveNote);
 
   let input: HTMLTextAreaElement | undefined;
 
@@ -654,7 +624,7 @@ function AddNote(props: {
   board: number;
 }) {
   const [active, setActive] = createSignal(false);
-  const addNote = useAction(actions.createNote);
+  const addNote = useAction(createNote);
   let inputRef: HTMLInputElement | undefined;
   return (
     <div class="w-full flex justify-center">
@@ -712,7 +682,7 @@ function AddNote(props: {
 function AddColumn(props: { board: ID; onAdd: () => void }) {
   const [active, setActive] = createSignal(false);
 
-  const addColumn = useAction(actions.createColumn);
+  const addColumn = useAction(createColumn);
 
   let inputRef: HTMLInputElement | undefined;
   let plusRef: HTMLButtonElement | undefined;
