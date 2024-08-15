@@ -16,6 +16,27 @@ import { BsPlus, BsThreeDotsVertical, BsTrash } from "solid-icons/bs";
 import { RiEditorDraggable } from "solid-icons/ri";
 import { createStore, reconcile } from "solid-js/store";
 import { createAutoAnimate } from "@formkit/auto-animate/solid";
+import {
+  createColumn,
+  renameColumn,
+  moveColumn,
+  deleteColumn,
+  deleteNote,
+  createNote,
+  editNote,
+  moveNote,
+} from "~/lib/queries";
+
+const actions = {
+  createColumn,
+  renameColumn,
+  moveColumn,
+  deleteColumn,
+  createNote,
+  editNote,
+  moveNote,
+  deleteNote,
+};
 
 enum DragTypes {
   Note = "application/note",
@@ -114,11 +135,10 @@ export type Actions = {
 
 const BoardContext = createContext<
   | {
-    board: Board;
-    columns: Column[];
-    notes: Note[];
-    actions: Actions;
-  }
+      board: Board;
+      columns: Column[];
+      notes: Note[];
+    }
   | undefined
 >();
 
@@ -128,22 +148,21 @@ const useBoard = () => {
   return context;
 };
 
-export function Board(props: { board: BoardData; actions: Actions }) {
+export function Board(props: { board: BoardData }) {
   const [boardStore, setBoardStore] = createStore({
     board: props.board.board,
     columns: props.board.columns,
     notes: props.board.notes,
-    actions: props.actions,
   });
 
-  const createNoteSubmission = useSubmissions(props.actions.createNote);
-  const editNoteSubmission = useSubmissions(props.actions.editNote);
-  const moveNoteSubmission = useSubmissions(props.actions.moveNote);
-  const deleteNoteSubmission = useSubmissions(props.actions.deleteNote);
-  const createColumnSubmission = useSubmissions(props.actions.createColumn);
-  const renameColumnSubmission = useSubmissions(props.actions.renameColumn);
-  const moveColumnSubmission = useSubmissions(props.actions.moveColumn);
-  const deleteColumnSubmission = useSubmissions(props.actions.deleteColumn);
+  const createNoteSubmission = useSubmissions(actions.createNote);
+  const editNoteSubmission = useSubmissions(actions.editNote);
+  const moveNoteSubmission = useSubmissions(actions.moveNote);
+  const deleteNoteSubmission = useSubmissions(actions.deleteNote);
+  const createColumnSubmission = useSubmissions(actions.createColumn);
+  const renameColumnSubmission = useSubmissions(actions.renameColumn);
+  const moveColumnSubmission = useSubmissions(actions.moveColumn);
+  const deleteColumnSubmission = useSubmissions(actions.deleteColumn);
 
   createEffect(() => {
     const mutations: any[] = [];
@@ -354,13 +373,13 @@ export function Board(props: { board: BoardData; actions: Actions }) {
 function ColumnGap(props: { left?: Column; right?: Column }) {
   const [active, setActive] = createSignal(false);
   const ctx = useBoard();
-  const moveColumnAction = useAction(ctx.actions.moveColumn);
+  const moveColumnAction = useAction(actions.moveColumn);
   return (
     <div
       class="w-10 h-full mx-1 rounded-lg transition"
       style={{
         background: "red",
-        opacity: active() ? 0.2 : 0
+        opacity: active() ? 0.2 : 0,
       }}
       onDragEnter={(e) => e.preventDefault()}
       onDragOver={(e) => {
@@ -391,14 +410,14 @@ function ColumnGap(props: { left?: Column; right?: Column }) {
   );
 }
 
-function Column(props: { column: Column, board: Board }) {
+function Column(props: { column: Column; board: Board }) {
   const ctx = useBoard();
 
   let parent: HTMLDivElement | undefined;
 
-  const renameAction = useAction(ctx.actions.renameColumn);
-  const deleteAction = useAction(ctx.actions.deleteColumn);
-  const moveNoteAction = useAction(ctx.actions.moveNote);
+  const renameAction = useAction(actions.renameColumn);
+  const deleteAction = useAction(actions.deleteColumn);
+  const moveNoteAction = useAction(actions.moveNote);
 
   const [acceptDrop, setAcceptDrop] = createSignal<boolean>(false);
 
@@ -413,7 +432,8 @@ function Column(props: { column: Column, board: Board }) {
       draggable="true"
       class="w-full h-full max-w-[300px] shrink-0 card"
       style={{
-        border: acceptDrop() === true ? "2px solid red" : "2px solid transparent",
+        border:
+          acceptDrop() === true ? "2px solid red" : "2px solid transparent",
       }}
       onDragStart={(e) => {
         e.dataTransfer?.setData(DragTypes.Column, props.column.id);
@@ -457,12 +477,16 @@ function Column(props: { column: Column, board: Board }) {
           required
           onBlur={(e) => {
             if (e.target.reportValidity()) {
-              renameAction(props.column.id, e.target.value, new Date().getTime())
+              renameAction(
+                props.column.id,
+                e.target.value,
+                new Date().getTime()
+              );
             }
           }}
           onKeyDown={(e) => {
             if (e.keyCode === 13) {
-              e.target.blur()
+              e.target.blur();
             }
           }}
         />
@@ -501,8 +525,6 @@ function Column(props: { column: Column, board: Board }) {
 }
 
 function Note(props: { note: Note; previous?: Note; next?: Note }) {
-  const { actions } = useBoard();
-
   const updateAction = useAction(actions.editNote);
   const deleteAction = useAction(actions.deleteNote);
   const moveNoteAction = useAction(actions.moveNote);
@@ -519,8 +541,10 @@ function Note(props: { note: Note; previous?: Note; next?: Note }) {
     <div
       style={{
         opacity: isBeingDragged() ? 0.25 : 1,
-        "border-top": acceptDrop() === "top" ? "2px solid red" : "2px solid transparent",
-        "border-bottom": acceptDrop() === "bottom" ? "2px solid red" : "2px solid transparent",
+        "border-top":
+          acceptDrop() === "top" ? "2px solid red" : "2px solid transparent",
+        "border-bottom":
+          acceptDrop() === "bottom" ? "2px solid red" : "2px solid transparent",
       }}
       draggable="true"
       class="card card-side px-1 py-2 w-full bg-base-200 text-lg flex justify-between items-center space-x-1"
@@ -623,8 +647,12 @@ function Note(props: { note: Note; previous?: Note; next?: Note }) {
   );
 }
 
-function AddNote(props: { column: ID; length: number; onAdd: () => void, board: number }) {
-  const { actions } = useBoard();
+function AddNote(props: {
+  column: ID;
+  length: number;
+  onAdd: () => void;
+  board: number;
+}) {
   const [active, setActive] = createSignal(false);
   const addNote = useAction(actions.createNote);
   let inputRef: HTMLInputElement | undefined;
@@ -682,8 +710,6 @@ function AddNote(props: { column: ID; length: number; onAdd: () => void, board: 
 }
 
 function AddColumn(props: { board: ID; onAdd: () => void }) {
-  const { actions } = useBoard();
-
   const [active, setActive] = createSignal(false);
 
   const addColumn = useAction(actions.createColumn);
@@ -693,7 +719,7 @@ function AddColumn(props: { board: ID; onAdd: () => void }) {
 
   onMount(() => {
     plusRef?.focus();
-  })
+  });
 
   return (
     <Switch>
@@ -736,7 +762,11 @@ function AddColumn(props: { board: ID; onAdd: () => void }) {
         </form>
       </Match>
       <Match when={!active()}>
-        <button ref={plusRef} class="btn btn-circle" onClick={() => setActive(true)}>
+        <button
+          ref={plusRef}
+          class="btn btn-circle"
+          onClick={() => setActive(true)}
+        >
           <BsPlus size={10} />
         </button>
       </Match>
