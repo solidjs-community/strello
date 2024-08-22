@@ -207,7 +207,7 @@ export function ColumnGap(props: { left?: Column; right?: Column }) {
   const moveColumnAction = useAction(moveColumn);
   return (
     <div
-      class="w-10 h-full mx-1 rounded-lg transition"
+      class="w-10 h-full rounded-lg transition min-w-5"
       style={{
         background: "red",
         opacity: active() ? 0.2 : 0,

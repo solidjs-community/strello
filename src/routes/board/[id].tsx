@@ -5,6 +5,7 @@ import {
   action,
   cache,
   createAsync,
+  redirect,
   useAction,
   useSubmission,
 } from "@solidjs/router";
@@ -29,21 +30,24 @@ const fetchBoard = cache(async (boardId: number) => {
     },
   });
 
+  if (!boardFromDataBase) throw redirect("/");
+
   // mapping the db to what the board expects
   return {
     board: {
-      id: String(boardFromDataBase?.id),
-      title: String(boardFromDataBase?.name),
+      id: String(boardFromDataBase.id),
+      title: boardFromDataBase.name,
+      color: boardFromDataBase.color,
     },
     notes:
-      boardFromDataBase?.items.map((note) => ({
+      boardFromDataBase.items.map((note) => ({
         ...note,
         board: String(note.boardId),
         column: note.columnId,
         body: note.title || "",
       })) || [],
     columns:
-      boardFromDataBase?.columns.map((column) => ({
+      boardFromDataBase.columns.map((column) => ({
         ...column,
         board: String(column.boardId),
         title: column.name,
@@ -73,7 +77,10 @@ export default function Page(props: RouteSectionProps) {
   return (
     <Show when={board()}>
       {(board) => (
-        <main class="w-full p-8 space-y-2 bg-red-400">
+        <main
+          class="w-full p-8 space-y-2"
+          style={{ "background-color": board().board.color }}
+        >
           <Title>{board().board.title} | Strello</Title>
 
           <h1 class="mb-4">

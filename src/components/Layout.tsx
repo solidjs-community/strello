@@ -7,8 +7,8 @@ export default function Layout(props: ParentProps) {
   const user = createAsync(() => getUser());
 
   return (
-    <div class="min-h-screen bg-slate-200">
-      <header class="sticky top-0 z-50 flex items-center justify-between bg-slate-900 shadow-md shadow-slate-900/5 transition duration-500 dark:shadow-none backdrop-blur">
+    <div class="min-h-screen bg-slate-200 text-black">
+      <header class="sticky top-0 z-50 flex items-center justify-between bg-slate-900 shadow-md shadow-slate-900/5 transition duration-500 dark:shadow-none backdrop-blur text-slate-200">
         <div class="grid lg:grid-cols-[1fr1fr] grid-cols-2 py-2 px-8 items-center w-full max-w-8xl mx-auto ">
           <div class="flex justify-start gap-2">
             <div class="flex justify-start gap-2">
