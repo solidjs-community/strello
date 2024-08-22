@@ -1,12 +1,58 @@
 import { Title } from "@solidjs/meta";
 import {
+  action,
+  cache,
   createAsync,
+  redirect,
   useSubmission,
   type RouteDefinition,
 } from "@solidjs/router";
 import { BsTrash } from "solid-icons/bs";
 import { For, Show, onMount } from "solid-js";
-import { addBoard, deleteBoard, getBoards, getUser } from "~/lib";
+import { getUser } from "~/lib";
+import { getSession } from "~/lib/auth";
+import { db } from "~/lib/db";
+
+const addBoard = action(async (formData: FormData) => {
+  "use server";
+
+  const session = await getSession();
+  const userId = session.data.userId;
+  const name = String(formData.get("name"));
+  const color = String(formData.get("color"));
+
+  const board = await db.board.create({
+    data: {
+      accountId: userId,
+      name,
+      color,
+    },
+  });
+
+  return redirect(`/board/${board.id}`);
+}, "add-board");
+
+const deleteBoard = action(async (boardId: number) => {
+  "use server";
+  const session = await getSession();
+  const userId = session.data.userId;
+
+  await db.board.delete({
+    where: { id: boardId, accountId: userId },
+  });
+}, "delete-board");
+
+const getBoards = cache(async () => {
+  "use server";
+  const session = await getSession();
+  const userId = session.data.userId;
+
+  return db.board.findMany({
+    where: {
+      accountId: userId,
+    },
+  });
+}, "get-boards");
 
 export const route = {
   load: () => {
@@ -45,7 +91,7 @@ export default function Home() {
         <div class="h-full">
           <form action={addBoard} method="post" class="max-w-md">
             <div>
-              <h2 class="w-full text-2xl font-medium block rounded-lg text-left border border-transparent pb-4">
+              <h2 class="w-full text-2xl font-medium block rounded-lg text-left border border-transparent pb-4 text-white">
                 New Board
               </h2>
               <label

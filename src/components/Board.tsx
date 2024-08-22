@@ -2,17 +2,23 @@ import { Action, useSubmissions } from "@solidjs/router";
 import { For, batch, createEffect, createMemo } from "solid-js";
 import { createStore, reconcile } from "solid-js/store";
 import {
+  AddColumn,
+  Column,
+  ColumnGap,
+  ColumnId,
   createColumn,
-  createNote,
   deleteColumn,
+  moveColumn,
+  renameColumn,
+} from "./Column";
+import {
+  Note,
+  NoteId,
+  createNote,
   deleteNote,
   editNote,
-  moveColumn,
   moveNote,
-  renameColumn,
-} from "~/lib/queries";
-import { AddColumn, Column, ColumnGap, ColumnId } from "./Column";
-import { Note, NoteId } from "./Note";
+} from "./Note";
 
 export enum DragTypes {
   Note = "application/note",
@@ -30,41 +36,6 @@ export type BoardData = {
   board: Board;
   columns: Column[];
   notes: Note[];
-};
-
-export type Actions = {
-  createColumn: Action<
-    [id: ColumnId, board: BoardId, title: string, timestamp: number],
-    boolean
-  >;
-  renameColumn: Action<
-    [id: ColumnId, title: string, timestamp: number],
-    boolean
-  >;
-  moveColumn: Action<
-    [column: ColumnId, order: number, timestamp: number],
-    void
-  >;
-  deleteColumn: Action<[id: ColumnId, timestamp: number], boolean>;
-  createNote: Action<
-    [
-      {
-        id: NoteId;
-        board: BoardId;
-        column: ColumnId;
-        body: string;
-        order: number;
-        timestamp: number;
-      }
-    ],
-    boolean
-  >;
-  editNote: Action<[id: NoteId, content: string, timestamp: number], boolean>;
-  moveNote: Action<
-    [note: NoteId, column: ColumnId, order: number, timestamp: number],
-    boolean
-  >;
-  deleteNote: Action<[id: NoteId, timestamp: number], boolean>;
 };
 
 type Mutation =

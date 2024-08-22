@@ -1,11 +1,112 @@
-import { useAction } from "@solidjs/router";
+import { action, useAction } from "@solidjs/router";
 import { BsPlus, BsTrash } from "solid-icons/bs";
 import { RiEditorDraggable } from "solid-icons/ri";
 import { Match, Switch, createSignal } from "solid-js";
-import { createNote, deleteNote, editNote, moveNote } from "~/lib/queries";
 import { BoardId, DragTypes } from "./Board";
 import { ColumnId } from "./Column";
 import { getIndexBetween } from "~/lib/utils";
+import { getAuthUser } from "~/lib/auth";
+import { db } from "~/lib/db";
+
+export const createNote = action(
+  async ({
+    id,
+    column,
+    body,
+    order,
+    timestamp,
+    board,
+  }: {
+    id: NoteId;
+    board: BoardId;
+    column: ColumnId;
+    body: string;
+    order: number;
+    timestamp: number;
+  }) => {
+    "use server";
+    const accountId = await getAuthUser();
+    const mutation = {
+      id: String(id),
+      title: String(body),
+      order,
+      boardId: +board,
+      columnId: String(column),
+    };
+
+    await db.item.upsert({
+      where: {
+        id: mutation.id,
+        Board: {
+          accountId,
+        },
+      },
+      create: mutation,
+      update: mutation,
+    });
+
+    return true;
+  },
+  "create-item"
+);
+
+export const editNote = action(
+  async (id: NoteId, content: string, timestamp: number) => {
+    "use server";
+    const accountId = await getAuthUser();
+    const mutation = {
+      id: String(id),
+      title: String(content),
+    };
+
+    await db.item.update({
+      where: {
+        id: mutation.id,
+        Board: {
+          accountId,
+        },
+      },
+      data: mutation,
+    });
+
+    return true;
+  },
+  "edit-item"
+);
+
+export const moveNote = action(
+  async (note: NoteId, column: ColumnId, order: number, timestamp: number) => {
+    "use server";
+    const accountId = await getAuthUser();
+    const mutation = {
+      id: String(note),
+      columnId: String(column),
+      order,
+    };
+
+    await db.item.update({
+      where: {
+        id: mutation.id,
+        Board: {
+          accountId,
+        },
+      },
+      data: mutation,
+    });
+
+    return true;
+  },
+  "move-item"
+);
+
+export const deleteNote = action(async (id: NoteId, timestamp: number) => {
+  "use server";
+  const accountId = await getAuthUser();
+
+  await db.item.delete({ where: { id, Board: { accountId } } });
+
+  return true;
+}, "delete-card");
 
 export type NoteId = string & { __brand?: "NoteId" };
 
