@@ -13,7 +13,7 @@ import { getUser } from "~/lib";
 import { getSession } from "~/lib/auth";
 import { db } from "~/lib/db";
 
-export const addBoard = action(async (formData: FormData) => {
+const addBoard = action(async (formData: FormData) => {
   "use server";
 
   const session = await getSession();
@@ -32,7 +32,7 @@ export const addBoard = action(async (formData: FormData) => {
   return redirect(`/board/${board.id}`);
 }, "add-board");
 
-export const deleteBoard = action(async (boardId: number) => {
+const deleteBoard = action(async (boardId: number) => {
   "use server";
   const session = await getSession();
   const userId = session.data.userId;
@@ -42,7 +42,7 @@ export const deleteBoard = action(async (boardId: number) => {
   });
 }, "delete-board");
 
-export const getBoards = cache(async () => {
+const getBoards = cache(async () => {
   "use server";
   const session = await getSession();
   const userId = session.data.userId;
