@@ -5,7 +5,7 @@ export default function EditableText(props: {
   saveAction: (value: string) => void;
 }) {
   const [showEdit, setShowEdit] = createSignal(false);
-  createEffect(() => console.log({ se: showEdit(), text: props.text }));
+
   return (
     <Show
       when={showEdit()}
