@@ -1,4 +1,4 @@
-import { useAction } from "@solidjs/router";
+import { action, useAction } from "@solidjs/router";
 import { BsPlus, BsTrash } from "solid-icons/bs";
 import { RiEditorDraggable } from "solid-icons/ri";
 import {
@@ -9,16 +9,74 @@ import {
   createSignal,
   onMount,
 } from "solid-js";
-import {
-  createColumn,
-  deleteColumn,
-  moveColumn,
-  moveNote,
-  renameColumn,
-} from "~/lib/queries";
 import { Board, BoardId, DragTypes } from "./Board";
 import { getIndexBetween } from "~/lib/utils";
-import { AddNote, Note, NoteId } from "./Note";
+import { AddNote, Note, NoteId, moveNote } from "./Note";
+import { getAuthUser } from "~/lib/auth";
+import { db } from "~/lib/db";
+
+export const renameColumn = action(
+  async (id: ColumnId, name: string, timestamp: number) => {
+    "use server";
+    const accountId = await getAuthUser();
+
+    await db.column.update({
+      where: { id, Board: { accountId } },
+      data: { name },
+    });
+
+    return true;
+  }
+);
+
+export const createColumn = action(
+  async (id: ColumnId, board: BoardId, name: string, timestamp: number) => {
+    "use server";
+
+    const accountId = await getAuthUser();
+
+    let columnCount = await db.column.count({
+      where: { boardId: +board, Board: { accountId } },
+    });
+    await db.column.create({
+      data: {
+        id,
+        boardId: +board,
+        name,
+        order: columnCount + 1,
+      },
+    });
+
+    return true;
+  },
+  "create-column"
+);
+
+export const moveColumn = action(
+  async (id: ColumnId, order: number, timestamp: number) => {
+    "use server";
+    const accountId = await getAuthUser();
+
+    await db.column.update({
+      where: { id, Board: { accountId } },
+      data: { order },
+    });
+
+    return;
+  },
+  "create-column"
+);
+
+export const deleteColumn = action(async (id: ColumnId, timestamp: number) => {
+  "use server";
+  const accountId = await getAuthUser();
+
+  await db.column.delete({
+    where: { id, Board: { accountId } },
+  });
+
+  return true;
+}, "create-column");
 
 export type ColumnId = string & { __brand?: "ColumnId" };
 
