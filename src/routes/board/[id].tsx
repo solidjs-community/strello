@@ -72,26 +72,28 @@ export default function Page(props: RouteSectionProps) {
 
   return (
     <Show when={board()}>
-      <main class="w-full px-8 space-y-2">
-        <Title>{board()?.board.title} | Strello</Title>
+      {(board) => (
+        <main class="w-full p-8 space-y-2 bg-red-400">
+          <Title>{board().board.title} | Strello</Title>
 
-        <h1 class="mb-4">
-          <EditableText
-            text={
-              (submission.input && submission.input[1]) ||
-              board()?.board.title ||
-              ""
-            }
-            saveAction={(value: string) =>
-              updateBoardNameAction(+props.params.id, value)
-            }
-          />
-        </h1>
+          <h1 class="mb-4">
+            <EditableText
+              text={
+                (submission.input && submission.input[1]) ||
+                board().board.title ||
+                ""
+              }
+              saveAction={(value: string) =>
+                updateBoardNameAction(+props.params.id, value)
+              }
+            />
+          </h1>
 
-        <div>
-          <Board board={board()!} />
-        </div>
-      </main>
+          <div>
+            <Board board={board()} />
+          </div>
+        </main>
+      )}
     </Show>
   );
 }

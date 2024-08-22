@@ -9,7 +9,7 @@ import {
   createSignal,
   onMount,
 } from "solid-js";
-import { Board, BoardId, DragTypes } from "./Board";
+import { type Board, type BoardId, DragTypes } from "./Board";
 import { getIndexBetween } from "~/lib/utils";
 import { AddNote, Note, NoteId, moveNote } from "./Note";
 import { getAuthUser } from "~/lib/auth";
