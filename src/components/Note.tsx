@@ -251,21 +251,14 @@ export function AddNote(props: {
 }) {
   const [active, setActive] = createSignal(false);
   const addNote = useAction(createNote);
-  let inputRef: HTMLInputElement | undefined;
-  let formRef: HTMLFormElement | undefined;
 
-  function blurHandler(e: FocusEvent) {
-    if (!formRef?.contains(e.relatedTarget as any)) {
-      setActive(false);
-    }
-  }
+  let inputRef: HTMLInputElement | undefined;
 
   return (
     <div class="w-full flex justify-center p-2">
       <Switch>
         <Match when={active()}>
           <form
-            ref={formRef}
             class="flex flex-col space-y-2 card w-full"
             onSubmit={(e) => {
               e.preventDefault();
@@ -280,6 +273,11 @@ export function AddNote(props: {
               inputRef && (inputRef.value = "");
               props.onAdd();
             }}
+            onFocusOut={(e) => {
+              if (!e.currentTarget.contains(e.relatedTarget as any)) {
+                setActive(false);
+              }
+            }}
           >
             <input
               ref={(el) => {
@@ -289,21 +287,15 @@ export function AddNote(props: {
               class="textarea"
               placeholder="Add a Note"
               required
-              onBlur={blurHandler}
             />
             <div class="flex justify-between">
-              <button
-                class="btn btn-success"
-                type="submit"
-                onBlur={blurHandler}
-              >
+              <button class="btn btn-success" type="submit">
                 Add
               </button>
               <button
                 class="btn btn-error"
                 type="reset"
                 onClick={() => setActive(false)}
-                onBlur={blurHandler}
               >
                 Cancel
               </button>

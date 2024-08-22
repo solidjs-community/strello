@@ -254,19 +254,12 @@ export function AddColumn(props: { board: BoardId; onAdd: () => void }) {
 
   const addColumn = useAction(createColumn);
 
-  let formRef: HTMLFormElement | undefined;
   let inputRef: HTMLInputElement | undefined;
   let plusRef: HTMLButtonElement | undefined;
 
   onMount(() => {
     plusRef?.focus();
   });
-
-  function blurHandler(e: FocusEvent) {
-    if (!formRef?.contains(e.relatedTarget as any)) {
-      setActive(false);
-    }
-  }
 
   return (
     <Switch>
@@ -283,8 +276,12 @@ export function AddColumn(props: { board: BoardId; onAdd: () => void }) {
             inputRef && (inputRef.value = ""),
             props.onAdd()
           )}
-          ref={formRef}
           class="flex flex-col space-y-2 card bg-slate-100 p-2 w-full max-w-[300px]"
+          onFocusOut={(e) => {
+            if (!e.currentTarget.contains(e.relatedTarget as any)) {
+              setActive(false);
+            }
+          }}
         >
           <input
             ref={(el) => {
@@ -294,17 +291,15 @@ export function AddColumn(props: { board: BoardId; onAdd: () => void }) {
             class="input"
             placeholder="Add a Column"
             required
-            onBlur={blurHandler}
           />
           <div class="flex justify-between">
-            <button type="submit" class="btn btn-success" onBlur={blurHandler}>
+            <button type="submit" class="btn btn-success">
               Add
             </button>
             <button
               type="reset"
               class="btn btn-error"
               onClick={() => setActive(false)}
-              onBlur={blurHandler}
             >
               Cancel
             </button>
