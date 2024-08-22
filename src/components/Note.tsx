@@ -254,6 +254,12 @@ export function AddNote(props: {
   let inputRef: HTMLInputElement | undefined;
   let formRef: HTMLFormElement | undefined;
 
+  function blurHandler(e: FocusEvent) {
+    if (!formRef?.contains(e.relatedTarget as any)) {
+      setActive(false);
+    }
+  }
+
   return (
     <div class="w-full flex justify-center p-2">
       <Switch>
@@ -283,20 +289,21 @@ export function AddNote(props: {
               class="textarea"
               placeholder="Add a Note"
               required
-              onBlur={(e) => {
-                if (!formRef?.contains(e.relatedTarget as any)) {
-                  setActive(false);
-                }
-              }}
+              onBlur={blurHandler}
             />
             <div class="flex justify-between">
-              <button class="btn btn-success" type="submit">
+              <button
+                class="btn btn-success"
+                type="submit"
+                onBlur={blurHandler}
+              >
                 Add
               </button>
               <button
                 class="btn btn-error"
                 type="reset"
                 onClick={() => setActive(false)}
+                onBlur={blurHandler}
               >
                 Cancel
               </button>

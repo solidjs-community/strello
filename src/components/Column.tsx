@@ -262,6 +262,12 @@ export function AddColumn(props: { board: BoardId; onAdd: () => void }) {
     plusRef?.focus();
   });
 
+  function blurHandler(e: FocusEvent) {
+    if (!formRef?.contains(e.relatedTarget as any)) {
+      setActive(false);
+    }
+  }
+
   return (
     <Switch>
       <Match when={active()}>
@@ -288,20 +294,17 @@ export function AddColumn(props: { board: BoardId; onAdd: () => void }) {
             class="input"
             placeholder="Add a Column"
             required
-            onBlur={(e) => {
-              if (!formRef?.contains(e.relatedTarget as any)) {
-                setActive(false);
-              }
-            }}
+            onBlur={blurHandler}
           />
           <div class="flex justify-between">
-            <button type="submit" class="btn btn-success">
+            <button type="submit" class="btn btn-success" onBlur={blurHandler}>
               Add
             </button>
             <button
               type="reset"
               class="btn btn-error"
               onClick={() => setActive(false)}
+              onBlur={blurHandler}
             >
               Cancel
             </button>
