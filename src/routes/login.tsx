@@ -76,17 +76,25 @@ export default function Login(props: RouteSectionProps) {
             autocomplete="current-password"
           />
         </div>
-        <label class="pr-2 w-24 inline-block" for="password-input">
-
-        </label>
+        <label class="pr-2 w-24 inline-block" for="password-input"></label>
         <button
           class="w-28 mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
           type="submit"
         >
-          {loggingIn.pending ? <span class="loader"></span> : register() ? "Register" : "Login"}
+          {loggingIn.pending ? (
+            <span class="loader"></span>
+          ) : register() ? (
+            "Register"
+          ) : (
+            "Login"
+          )}
         </button>
         <Show when={loggingIn.result}>
-          <p class="mt-2 text-red-500 text-center" role="alert" id="error-message">
+          <p
+            class="mt-2 text-red-500 text-center"
+            role="alert"
+            id="error-message"
+          >
             {loggingIn.result!.message}
           </p>
         </Show>

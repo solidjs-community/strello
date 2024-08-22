@@ -86,7 +86,6 @@ export const deleteBoard = action(async (boardId: number) => {
   await db.board.delete({
     where: { id: boardId, accountId: userId },
   });
-
 }, "delete-board");
 
 export const redirectIfLoggedIn = cache(async () => {

@@ -1,16 +1,5 @@
-import { Action, useAction, useSubmissions } from "@solidjs/router";
-import { BsPlus, BsTrash } from "solid-icons/bs";
-import { RiEditorDraggable } from "solid-icons/ri";
-import {
-  For,
-  Match,
-  Switch,
-  batch,
-  createEffect,
-  createMemo,
-  createSignal,
-  onMount,
-} from "solid-js";
+import { Action, useSubmissions } from "@solidjs/router";
+import { For, batch, createEffect, createMemo } from "solid-js";
 import { createStore, reconcile } from "solid-js/store";
 import {
   createColumn,
@@ -22,64 +11,18 @@ import {
   moveNote,
   renameColumn,
 } from "~/lib/queries";
+import { AddColumn, Column, ColumnGap, ColumnId } from "./Column";
+import { Note, NoteId } from "./Note";
 
-enum DragTypes {
+export enum DragTypes {
   Note = "application/note",
   Column = "application/column",
 }
 
-export type ID = string;
-export type Order = number;
-
-export type Note = {
-  id: ID;
-  board: ID;
-  column: ID;
-  order: Order;
-  body: string;
-};
-
-export type Column = {
-  id: ID;
-  board: ID;
-  title: string;
-  order: Order;
-};
-
-function getIndicesBetween(
-  below: number | undefined,
-  above: number | undefined,
-  n: number = 1
-) {
-  let start: number;
-  let step: number;
-  if (typeof below === "number" && below === above) {
-    throw new Error(`below ${below} and above ${above} cannot be the same`);
-  }
-  if (below !== undefined && above !== undefined) {
-    // Put items between
-    step = (above - below) / (n + 1);
-    start = below + step;
-  } else if (below === undefined && above !== undefined) {
-    // Put items below (bottom of the list)
-    step = above / (n + 1);
-    start = step;
-  } else if (below !== undefined && above === undefined) {
-    // Put items above (top of the list)
-    start = below + 1;
-    step = 1;
-  } else {
-    return Array.from(Array(n)).map((_, i) => i + 1);
-  }
-  return Array.from(Array(n)).map((_, i) => start + i * step);
-}
-const getIndexBetween = (
-  below: number | undefined,
-  above: number | undefined
-) => getIndicesBetween(below, above, 1)[0];
+export type BoardId = string & { __brand?: "BoardId" };
 
 export type Board = {
-  id: ID;
+  id: BoardId;
   title: string;
 };
 
@@ -91,32 +34,90 @@ export type BoardData = {
 
 export type Actions = {
   createColumn: Action<
-    [id: ID, board: ID, title: string, timestamp: number],
+    [id: ColumnId, board: BoardId, title: string, timestamp: number],
     boolean
   >;
-  renameColumn: Action<[id: ID, title: string, timestamp: number], boolean>;
-  moveColumn: Action<[column: ID, order: Order, timestamp: number], void>;
-  deleteColumn: Action<[id: ID, timestamp: number], boolean>;
+  renameColumn: Action<
+    [id: ColumnId, title: string, timestamp: number],
+    boolean
+  >;
+  moveColumn: Action<
+    [column: ColumnId, order: number, timestamp: number],
+    void
+  >;
+  deleteColumn: Action<[id: ColumnId, timestamp: number], boolean>;
   createNote: Action<
     [
       {
-        id: ID;
-        board: ID;
-        column: ID;
+        id: NoteId;
+        board: BoardId;
+        column: ColumnId;
         body: string;
-        order: Order;
+        order: number;
         timestamp: number;
       }
     ],
     boolean
   >;
-  editNote: Action<[id: ID, content: string, timestamp: number], boolean>;
+  editNote: Action<[id: NoteId, content: string, timestamp: number], boolean>;
   moveNote: Action<
-    [note: ID, column: ID, order: number, timestamp: number],
+    [note: NoteId, column: ColumnId, order: number, timestamp: number],
     boolean
   >;
-  deleteNote: Action<[id: ID, timestamp: number], boolean>;
+  deleteNote: Action<[id: NoteId, timestamp: number], boolean>;
 };
+
+type Mutation =
+  | {
+      type: "createNote";
+      id: NoteId;
+      column: ColumnId;
+      body: string;
+      order: number;
+      timestamp: number;
+    }
+  | {
+      type: "editNote";
+      id: NoteId;
+      content: string;
+      timestamp: number;
+    }
+  | {
+      type: "moveNote";
+      id: NoteId;
+      column: ColumnId;
+      order: number;
+      timestamp: number;
+    }
+  | {
+      type: "deleteNote";
+      id: NoteId;
+      timestamp: number;
+    }
+  | {
+      type: "createColumn";
+      id: ColumnId;
+      board: string;
+      title: string;
+      timestamp: number;
+    }
+  | {
+      type: "renameColumn";
+      id: ColumnId;
+      title: string;
+      timestamp: number;
+    }
+  | {
+      type: "moveColumn";
+      id: ColumnId;
+      order: number;
+      timestamp: number;
+    }
+  | {
+      type: "deleteColumn";
+      id: ColumnId;
+      timestamp: number;
+    };
 
 export function Board(props: { board: BoardData }) {
   const [boardStore, setBoardStore] = createStore({
@@ -135,7 +136,7 @@ export function Board(props: { board: BoardData }) {
   const deleteColumnSubmission = useSubmissions(deleteColumn);
 
   createEffect(() => {
-    const mutations: any[] = [];
+    const mutations: Mutation[] = [];
 
     for (const note of createNoteSubmission.values()) {
       if (!note.pending) continue;
@@ -321,8 +322,8 @@ export function Board(props: { board: BoardData }) {
           <>
             <Column
               column={column}
-              board={props.board.board}
-              notes={props.board.notes}
+              board={boardStore.board}
+              notes={boardStore.notes}
             />
             <ColumnGap
               left={sortedColumns()[i()]}
@@ -332,414 +333,12 @@ export function Board(props: { board: BoardData }) {
         )}
       </For>
       <AddColumn
-        board={props.board.board.id}
+        board={boardStore.board.id}
         onAdd={() => {
           scrollContainerRef &&
             (scrollContainerRef.scrollLeft = scrollContainerRef.scrollWidth);
         }}
       />
     </div>
-  );
-}
-
-function ColumnGap(props: { left?: Column; right?: Column }) {
-  const [active, setActive] = createSignal(false);
-  const moveColumnAction = useAction(moveColumn);
-  return (
-    <div
-      class="w-10 h-full mx-1 rounded-lg transition"
-      style={{
-        background: "red",
-        opacity: active() ? 0.2 : 0,
-      }}
-      onDragEnter={(e) => e.preventDefault()}
-      onDragOver={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        setActive(true);
-      }}
-      onDragLeave={(e) => setActive(false)}
-      onDragExit={(e) => setActive(false)}
-      onDrop={(e) => {
-        e.preventDefault();
-        setActive(false);
-
-        if (e.dataTransfer?.types.includes(DragTypes.Column)) {
-          const columnId = e.dataTransfer?.getData(DragTypes.Column);
-          if (columnId) {
-            if (columnId === props.left?.id || columnId === props.right?.id)
-              return;
-            const newOrder = getIndexBetween(
-              props.left?.order,
-              props.right?.order
-            );
-            moveColumnAction(columnId, newOrder, new Date().getTime());
-          }
-        }
-      }}
-    />
-  );
-}
-
-function Column(props: { column: Column; board: Board; notes: Note[] }) {
-  let parent: HTMLDivElement | undefined;
-
-  const renameAction = useAction(renameColumn);
-  const deleteAction = useAction(deleteColumn);
-  const moveNoteAction = useAction(moveNote);
-
-  const [acceptDrop, setAcceptDrop] = createSignal<boolean>(false);
-
-  const filteredNotes = createMemo(() =>
-    props.notes
-      .filter((n) => n.column === props.column.id)
-      .sort((a, b) => a.order - b.order)
-  );
-
-  return (
-    <div
-      draggable="true"
-      class="w-full h-full max-w-[300px] shrink-0 card"
-      style={{
-        border:
-          acceptDrop() === true ? "2px solid red" : "2px solid transparent",
-      }}
-      onDragStart={(e) => {
-        e.dataTransfer?.setData(DragTypes.Column, props.column.id);
-      }}
-      onDragEnter={(e) => e.preventDefault()}
-      onDragOver={(e) => {
-        e.preventDefault();
-        if (e.dataTransfer?.types.includes(DragTypes.Note)) {
-          setAcceptDrop(true);
-          return;
-        }
-      }}
-      onDragLeave={(e) => setAcceptDrop(false)}
-      onDragExit={(e) => setAcceptDrop(false)}
-      onDrop={(e) => {
-        e.preventDefault();
-        if (e.dataTransfer?.types.includes(DragTypes.Note)) {
-          const noteId = e.dataTransfer?.getData(DragTypes.Note);
-          if (noteId && !filteredNotes().find((n) => n.id === noteId)) {
-            moveNoteAction(
-              noteId,
-              props.column.id,
-              getIndexBetween(
-                filteredNotes()[filteredNotes().length - 1]?.order,
-                undefined
-              ),
-              new Date().getTime()
-            );
-          }
-        }
-        setAcceptDrop(false);
-      }}
-    >
-      <div class="card card-side flex items-center bg-base-300 px-2 py-2 mb-2 space-x-1">
-        <div>
-          <RiEditorDraggable size={6} class="cursor-move" />
-        </div>
-        <input
-          class="input input-ghost text-2xl font-bold w-full"
-          value={props.column.title}
-          required
-          onBlur={(e) => {
-            if (e.target.reportValidity()) {
-              renameAction(
-                props.column.id,
-                e.target.value,
-                new Date().getTime()
-              );
-            }
-          }}
-          onKeyDown={(e) => {
-            if (e.keyCode === 13) {
-              // @ts-expect-error maybe use currentTarget?
-              e.target.blur();
-            }
-          }}
-        />
-        <button
-          class="btn btn-ghost btn-sm btn-circle"
-          onClick={() => deleteAction(props.column.id, new Date().getTime())}
-        >
-          <BsTrash />
-        </button>
-      </div>
-      <div
-        class="flex h-full flex-col space-y-2 overflow-y-auto px-1"
-        ref={parent}
-      >
-        <For each={filteredNotes()}>
-          {(n, i) => (
-            <Note
-              note={n}
-              previous={filteredNotes()[i() - 1]}
-              next={filteredNotes()[i() + 1]}
-            />
-          )}
-        </For>
-      </div>
-      <div class="py-2" />
-      <AddNote
-        column={props.column.id}
-        board={+props.board.id}
-        length={props.notes.length}
-        onAdd={() => {
-          parent && (parent.scrollTop = parent.scrollHeight);
-        }}
-      />
-    </div>
-  );
-}
-
-function Note(props: { note: Note; previous?: Note; next?: Note }) {
-  const updateAction = useAction(editNote);
-  const deleteAction = useAction(deleteNote);
-  const moveNoteAction = useAction(moveNote);
-
-  let input: HTMLTextAreaElement | undefined;
-
-  const [isBeingDragged, setIsBeingDragged] = createSignal(false);
-
-  const [acceptDrop, setAcceptDrop] = createSignal<"top" | "bottom" | false>(
-    false
-  );
-
-  return (
-    <div
-      style={{
-        opacity: isBeingDragged() ? 0.25 : 1,
-        "border-top":
-          acceptDrop() === "top" ? "2px solid red" : "2px solid transparent",
-        "border-bottom":
-          acceptDrop() === "bottom" ? "2px solid red" : "2px solid transparent",
-      }}
-      draggable="true"
-      class="card card-side px-1 py-2 w-full bg-base-200 text-lg flex justify-between items-center space-x-1"
-      onDragStart={(e) => {
-        e.dataTransfer?.setData("application/note", props.note.id.toString());
-      }}
-      onDrag={(e) => {
-        setIsBeingDragged(true);
-      }}
-      onDragEnd={(e) => {
-        setIsBeingDragged(false);
-      }}
-      onDragEnter={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-      }}
-      onDragOver={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-
-        if (!e.dataTransfer?.types.includes(DragTypes.Note)) {
-          setAcceptDrop(false);
-          return;
-        }
-
-        const rect = e.currentTarget.getBoundingClientRect();
-        const midpoint = (rect.top + rect.bottom) / 2;
-        const isTop = e.clientY < midpoint;
-
-        setAcceptDrop(isTop ? "top" : "bottom");
-      }}
-      onDragExit={(e) => {
-        setAcceptDrop(false);
-      }}
-      onDragLeave={(e) => {
-        setAcceptDrop(false);
-      }}
-      onDrop={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        if (e.dataTransfer?.types.includes("application/note")) {
-          const noteId = e.dataTransfer?.getData("application/note");
-
-          action: if (noteId && noteId !== props.note.id) {
-            if (acceptDrop() === "top") {
-              if (props.previous && props.previous?.id === noteId) {
-                break action;
-              }
-              moveNoteAction(
-                noteId,
-                props.note.column,
-                getIndexBetween(props.previous?.order, props.note.order),
-                new Date().getTime()
-              );
-            }
-
-            if (acceptDrop() === "bottom") {
-              if (props.previous && props.next?.id === noteId) {
-                break action;
-              }
-              moveNoteAction(
-                noteId,
-                props.note.column,
-                getIndexBetween(props.note.order, props.next?.order),
-                new Date().getTime()
-              );
-            }
-          }
-        }
-
-        setAcceptDrop(false);
-      }}
-    >
-      <div>
-        <RiEditorDraggable size={6} class="cursor-move" />
-      </div>
-      <textarea
-        class="textarea textarea-ghost text-lg w-full"
-        ref={input}
-        style={{
-          resize: "none",
-        }}
-        onBlur={(e) =>
-          updateAction(
-            props.note.id,
-            (e.target as HTMLTextAreaElement).value,
-            new Date().getTime()
-          )
-        }
-      >
-        {`${props.note.body}`}
-      </textarea>
-      <button
-        class="btn btn-ghost btn-sm btn-circle"
-        onClick={() => deleteAction(props.note.id, new Date().getTime())}
-      >
-        <BsTrash />
-      </button>
-    </div>
-  );
-}
-
-function AddNote(props: {
-  column: ID;
-  length: number;
-  onAdd: () => void;
-  board: number;
-}) {
-  const [active, setActive] = createSignal(false);
-  const addNote = useAction(createNote);
-  let inputRef: HTMLInputElement | undefined;
-  return (
-    <div class="w-full flex justify-center">
-      <Switch>
-        <Match when={active()}>
-          <form
-            class="flex flex-col space-y-2 card bg-base-200 p-2 w-full"
-            onSubmit={(e) => {
-              e.preventDefault();
-              addNote({
-                id: crypto.randomUUID(),
-                board: String(props.board),
-                column: props.column,
-                body: inputRef?.value ?? "Note",
-                order: props.length + 1,
-                timestamp: new Date().getTime(),
-              });
-              inputRef && (inputRef.value = "");
-              props.onAdd();
-            }}
-          >
-            <input
-              ref={(el) => {
-                inputRef = el;
-                setTimeout(() => requestAnimationFrame(() => void el.focus()));
-              }}
-              class="textarea"
-              placeholder="Add a Note"
-              required
-            />
-            <div class="space-x-2">
-              <button class="btn btn-success" type="submit">
-                Add
-              </button>
-              <button
-                class="btn btn-error"
-                type="reset"
-                onClick={() => setActive(false)}
-              >
-                Cancel
-              </button>
-            </div>
-          </form>
-        </Match>
-        <Match when={!active()}>
-          <button class="btn btn-circle" onClick={() => setActive(true)}>
-            <BsPlus size={10} />
-          </button>
-        </Match>
-      </Switch>
-    </div>
-  );
-}
-
-function AddColumn(props: { board: ID; onAdd: () => void }) {
-  const [active, setActive] = createSignal(false);
-
-  const addColumn = useAction(createColumn);
-
-  let inputRef: HTMLInputElement | undefined;
-  let plusRef: HTMLButtonElement | undefined;
-
-  onMount(() => {
-    plusRef?.focus();
-  });
-
-  return (
-    <Switch>
-      <Match when={active()}>
-        <form
-          onSubmit={(e) => (
-            e.preventDefault(),
-            addColumn(
-              crypto.randomUUID(),
-              props.board,
-              inputRef?.value ?? "Column",
-              new Date().getTime()
-            ),
-            inputRef && (inputRef.value = ""),
-            props.onAdd()
-          )}
-          class="flex flex-col space-y-2 card bg-base-200 p-2 w-full max-w-[300px]"
-        >
-          <input
-            ref={(el) => {
-              (inputRef = el),
-                setTimeout(() => requestAnimationFrame(() => el.focus()));
-            }}
-            class="input"
-            placeholder="Add a Column"
-            required
-          />
-          <div class="space-x-2">
-            <button type="submit" class="btn btn-success">
-              Add
-            </button>
-            <button
-              type="reset"
-              class="btn btn-error"
-              onClick={() => setActive(false)}
-            >
-              Cancel
-            </button>
-          </div>
-        </form>
-      </Match>
-      <Match when={!active()}>
-        <button
-          ref={plusRef}
-          class="btn btn-circle"
-          onClick={() => setActive(true)}
-        >
-          <BsPlus size={10} />
-        </button>
-      </Match>
-    </Switch>
   );
 }

@@ -19,21 +19,23 @@ export default function Home() {
   const user = createAsync(() => getUser(), { deferStream: true });
   const serverBoards = createAsync(() => getBoards());
   const addBoardSubmission = useSubmission(addBoard);
-  const deleteBoardSubmission = useSubmission(deleteBoard);;
+  const deleteBoardSubmission = useSubmission(deleteBoard);
 
   const boards = () => {
     if (deleteBoardSubmission.pending) {
-      return (serverBoards()?.filter(b => b.id !== deleteBoardSubmission?.input[0]));
+      return serverBoards()?.filter(
+        (b) => b.id !== deleteBoardSubmission?.input[0]
+      );
     }
 
     return serverBoards();
-  }
+  };
 
   let inputRef: HTMLInputElement | undefined;
 
   onMount(() => {
     inputRef?.focus();
-  })
+  });
 
   return (
     <main class="w-full px-8 space-y-2">
@@ -43,7 +45,9 @@ export default function Home() {
         <div class="h-full">
           <form action={addBoard} method="post" class="max-w-md">
             <div>
-              <h2 class="w-full text-2xl font-medium block rounded-lg text-left border border-transparent pb-4">New Board</h2>
+              <h2 class="w-full text-2xl font-medium block rounded-lg text-left border border-transparent pb-4">
+                New Board
+              </h2>
               <label
                 for="name"
                 class="block text-sm font-medium leading-6 text-white"
@@ -99,10 +103,13 @@ export default function Home() {
                         style={`border-color: ${board.color}`}
                       >
                         <div class="font-bold text-white">{board.name}</div>
-
                       </a>
 
-                      <form class="absolute top-2.5 right-2.5" action={deleteBoard.with(board.id)} method="post">
+                      <form
+                        class="absolute top-2.5 right-2.5"
+                        action={deleteBoard.with(board.id)}
+                        method="post"
+                      >
                         <button
                           aria-label="Delete board"
                           class="btn btn-ghost btn-sm btn-circle"
@@ -120,6 +127,5 @@ export default function Home() {
         </div>
       </Show>
     </main>
-
   );
 }
