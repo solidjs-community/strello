@@ -205,33 +205,60 @@ export function Board(props: { board: BoardData }) {
     return mutations;
   }
 
+  // current approach
+  // createEffect(() => {
+  //   const mutations = getMutations();
+
+  //   const newNotes = [...props.board.notes];
+  //   const newColumns = [...props.board.columns];
+
+  //   applyMutations(mutations, newNotes, newColumns);
+
+  //   batch(() => {
+  //     setBoardStore("notes", reconcile(newNotes));
+  //     setBoardStore("columns", reconcile(newColumns));
+  //   });
+  // });
+
   createEffect(() => {
-    console.log(`got server data, reset the board`);
     const mutations = untrack(() => getMutations());
+
+    const prevTimestamp = untrack(() => boardStore.timestamp);
+    const latestMutations = mutations.filter(
+      (m) => m.timestamp > prevTimestamp
+    );
 
     const notes = [...props.board.notes];
     const columns = [...props.board.columns];
-    applyMutations(mutations, notes, columns);
+    applyMutations(latestMutations, notes, columns);
+
+    console.log(
+      `got server data, reset the board with mutations`,
+      ...latestMutations
+    );
 
     batch(() => {
       setBoardStore("notes", reconcile(notes));
       setBoardStore("columns", reconcile(columns));
+      setBoardStore("timestamp", Date.now());
     });
   });
 
   createEffect(() => {
-    console.log(`found submission, apply optimistic update`);
     const mutations = getMutations();
+    const prevTimestamp = untrack(() => boardStore.timestamp);
+    const latestMutations = mutations.filter(
+      (m) => m.timestamp > prevTimestamp
+    );
 
-    const prevTimestamp = boardStore.timestamp;
+    console.log(
+      `found submission, apply optimistic update with mutations`,
+      ...latestMutations
+    );
 
     setBoardStore(
       produce((b) => {
-        applyMutations(
-          mutations.filter((m) => m.timestamp > prevTimestamp),
-          b.notes,
-          b.columns
-        );
+        applyMutations(latestMutations, b.notes, b.columns);
         b.timestamp = Date.now();
       })
     );
