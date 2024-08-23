@@ -47,48 +47,6 @@ export const logout = action(async () => {
   return redirect("/login");
 });
 
-export const getBoards = cache(async () => {
-  "use server";
-  const session = await getSession();
-  const userId = session.data.userId;
-
-  return db.board.findMany({
-    where: {
-      accountId: userId,
-    },
-  });
-}, "get-boards");
-
-export const addBoard = action(async (formData: FormData) => {
-  "use server";
-
-  const session = await getSession();
-  const userId = session.data.userId;
-  const name = String(formData.get("name"));
-  const color = String(formData.get("color"));
-
-  const board = await db.board.create({
-    data: {
-      accountId: userId,
-      name,
-      color,
-    },
-  });
-
-  return redirect(`/board/${board.id}`);
-}, "add-board");
-
-export const deleteBoard = action(async (boardId: number) => {
-  "use server";
-  const session = await getSession();
-  const userId = session.data.userId;
-
-  await db.board.delete({
-    where: { id: boardId, accountId: userId },
-  });
-
-}, "delete-board");
-
 export const redirectIfLoggedIn = cache(async () => {
   "use server";
 
