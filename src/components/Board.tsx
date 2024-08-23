@@ -1,5 +1,5 @@
 import { Action, useSubmissions } from "@solidjs/router";
-import { For, batch, createEffect, createMemo } from "solid-js";
+import { For, batch, createEffect, createMemo, untrack } from "solid-js";
 import { createStore, produce, reconcile } from "solid-js/store";
 import {
   AddColumn,
@@ -108,7 +108,7 @@ export function Board(props: { board: BoardData }) {
   const moveColumnSubmission = useSubmissions(moveColumn);
   const deleteColumnSubmission = useSubmissions(deleteColumn);
 
-  createEffect(() => {
+  function getMutations() {
     const mutations: Mutation[] = [];
 
     for (const note of createNoteSubmission.values()) {
@@ -201,6 +201,27 @@ export function Board(props: { board: BoardData }) {
         timestamp,
       });
     }
+
+    return mutations;
+  }
+
+  createEffect(() => {
+    console.log(`got server data, reset the board`);
+    const mutations = untrack(() => getMutations());
+
+    const notes = [...props.board.notes];
+    const columns = [...props.board.columns];
+    applyMutations(mutations, notes, columns);
+
+    batch(() => {
+      setBoardStore("notes", reconcile(notes));
+      setBoardStore("columns", reconcile(columns));
+    });
+  });
+
+  createEffect(() => {
+    console.log(`found submission, apply optimistic update`);
+    const mutations = getMutations();
 
     const prevTimestamp = boardStore.timestamp;
 
