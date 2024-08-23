@@ -141,9 +141,9 @@ export function Note(props: { note: Note; previous?: Note; next?: Note }) {
           acceptDrop() === "bottom" ? "2px solid red" : "2px solid transparent",
       }}
       draggable="true"
-      class="card card-side px-1 py-2 w-full bg-base-200 text-lg flex justify-between items-center space-x-1"
+      class="card card-side px-1 py-2 w-full bg-slate-200 text-lg flex justify-between items-center space-x-1"
       onDragStart={(e) => {
-        e.dataTransfer?.setData("application/note", props.note.id.toString());
+        e.dataTransfer?.setData(DragTypes.Note, props.note.id.toString());
       }}
       onDrag={(e) => {
         setIsBeingDragged(true);
@@ -179,8 +179,8 @@ export function Note(props: { note: Note; previous?: Note; next?: Note }) {
       onDrop={(e) => {
         e.preventDefault();
         e.stopPropagation();
-        if (e.dataTransfer?.types.includes("application/note")) {
-          const noteId = e.dataTransfer?.getData("application/note") as
+        if (e.dataTransfer?.types.includes(DragTypes.Note)) {
+          const noteId = e.dataTransfer?.getData(DragTypes.Note) as
             | NoteId
             | undefined;
 
@@ -251,13 +251,15 @@ export function AddNote(props: {
 }) {
   const [active, setActive] = createSignal(false);
   const addNote = useAction(createNote);
+
   let inputRef: HTMLInputElement | undefined;
+
   return (
-    <div class="w-full flex justify-center">
+    <div class="w-full flex justify-center p-2">
       <Switch>
         <Match when={active()}>
           <form
-            class="flex flex-col space-y-2 card bg-base-200 p-2 w-full"
+            class="flex flex-col space-y-2 card w-full"
             onSubmit={(e) => {
               e.preventDefault();
               addNote({
@@ -271,6 +273,11 @@ export function AddNote(props: {
               inputRef && (inputRef.value = "");
               props.onAdd();
             }}
+            onFocusOut={(e) => {
+              if (!e.currentTarget.contains(e.relatedTarget as any)) {
+                setActive(false);
+              }
+            }}
           >
             <input
               ref={(el) => {
@@ -281,7 +288,7 @@ export function AddNote(props: {
               placeholder="Add a Note"
               required
             />
-            <div class="space-x-2">
+            <div class="flex justify-between">
               <button class="btn btn-success" type="submit">
                 Add
               </button>
@@ -296,8 +303,8 @@ export function AddNote(props: {
           </form>
         </Match>
         <Match when={!active()}>
-          <button class="btn btn-circle" onClick={() => setActive(true)}>
-            <BsPlus size={10} />
+          <button class="btn w-full" onClick={() => setActive(true)}>
+            <BsPlus size={10} /> Add a card
           </button>
         </Match>
       </Switch>

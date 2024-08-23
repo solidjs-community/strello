@@ -9,7 +9,7 @@ import {
   createSignal,
   onMount,
 } from "solid-js";
-import { Board, BoardId, DragTypes } from "./Board";
+import { type Board, type BoardId, DragTypes } from "./Board";
 import { getIndexBetween } from "~/lib/utils";
 import { AddNote, Note, NoteId, moveNote } from "./Note";
 import { getAuthUser } from "~/lib/auth";
@@ -105,7 +105,7 @@ export function Column(props: { column: Column; board: Board; notes: Note[] }) {
   return (
     <div
       draggable="true"
-      class="w-full h-full max-w-[300px] shrink-0 card"
+      class="w-full max-w-[300px] shrink-0 card bg-slate-100"
       style={{
         border:
           acceptDrop() === true ? "2px solid red" : "2px solid transparent",
@@ -144,7 +144,7 @@ export function Column(props: { column: Column; board: Board; notes: Note[] }) {
         setAcceptDrop(false);
       }}
     >
-      <div class="card card-side flex items-center bg-base-300 px-2 py-2 mb-2 space-x-1">
+      <div class="card card-side flex items-center bg-slate-100 px-2 py-2 mb-2 space-x-1">
         <div>
           <RiEditorDraggable size={6} class="cursor-move" />
         </div>
@@ -189,7 +189,6 @@ export function Column(props: { column: Column; board: Board; notes: Note[] }) {
           )}
         </For>
       </div>
-      <div class="py-2" />
       <AddNote
         column={props.column.id}
         board={props.board.id}
@@ -207,7 +206,7 @@ export function ColumnGap(props: { left?: Column; right?: Column }) {
   const moveColumnAction = useAction(moveColumn);
   return (
     <div
-      class="w-10 h-full mx-1 rounded-lg transition"
+      class="h-full rounded-lg transition min-w-5 w-10"
       style={{
         background: "red",
         opacity: active() ? 0.2 : 0,
@@ -216,15 +215,22 @@ export function ColumnGap(props: { left?: Column; right?: Column }) {
       onDragOver={(e) => {
         e.preventDefault();
         e.stopPropagation();
-        setActive(true);
+        if (
+          e.dataTransfer?.types.includes(DragTypes.Column) &&
+          e.dataTransfer?.types.length === 1
+        ) {
+          setActive(true);
+        }
       }}
       onDragLeave={(e) => setActive(false)}
       onDragExit={(e) => setActive(false)}
       onDrop={(e) => {
         e.preventDefault();
         setActive(false);
-
-        if (e.dataTransfer?.types.includes(DragTypes.Column)) {
+        if (
+          e.dataTransfer?.types.includes(DragTypes.Column) &&
+          e.dataTransfer?.types.length === 1
+        ) {
           const columnId = e.dataTransfer?.getData(DragTypes.Column) as
             | ColumnId
             | undefined;
@@ -270,7 +276,12 @@ export function AddColumn(props: { board: BoardId; onAdd: () => void }) {
             inputRef && (inputRef.value = ""),
             props.onAdd()
           )}
-          class="flex flex-col space-y-2 card bg-base-200 p-2 w-full max-w-[300px]"
+          class="flex flex-col space-y-2 card bg-slate-100 p-2 w-full max-w-[300px]"
+          onFocusOut={(e) => {
+            if (!e.currentTarget.contains(e.relatedTarget as any)) {
+              setActive(false);
+            }
+          }}
         >
           <input
             ref={(el) => {
@@ -281,7 +292,7 @@ export function AddColumn(props: { board: BoardId; onAdd: () => void }) {
             placeholder="Add a Column"
             required
           />
-          <div class="space-x-2">
+          <div class="flex justify-between">
             <button type="submit" class="btn btn-success">
               Add
             </button>

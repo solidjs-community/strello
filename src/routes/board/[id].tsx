@@ -5,6 +5,7 @@ import {
   action,
   cache,
   createAsync,
+  redirect,
   useAction,
   useSubmission,
 } from "@solidjs/router";
@@ -29,21 +30,24 @@ const fetchBoard = cache(async (boardId: number) => {
     },
   });
 
+  if (!boardFromDataBase) throw redirect("/");
+
   // mapping the db to what the board expects
   return {
     board: {
-      id: String(boardFromDataBase?.id),
-      title: String(boardFromDataBase?.name),
+      id: String(boardFromDataBase.id),
+      title: boardFromDataBase.name,
+      color: boardFromDataBase.color,
     },
     notes:
-      boardFromDataBase?.items.map((note) => ({
+      boardFromDataBase.items.map((note) => ({
         ...note,
         board: String(note.boardId),
         column: note.columnId,
         body: note.title || "",
       })) || [],
     columns:
-      boardFromDataBase?.columns.map((column) => ({
+      boardFromDataBase.columns.map((column) => ({
         ...column,
         board: String(column.boardId),
         title: column.name,
@@ -72,26 +76,31 @@ export default function Page(props: RouteSectionProps) {
 
   return (
     <Show when={board()}>
-      <main class="w-full px-8 space-y-2">
-        <Title>{board()?.board.title} | Strello</Title>
+      {(board) => (
+        <main
+          class="w-full p-8 space-y-2"
+          style={{ "background-color": board().board.color }}
+        >
+          <Title>{board().board.title} | Strello</Title>
 
-        <h1 class="mb-4">
-          <EditableText
-            text={
-              (submission.input && submission.input[1]) ||
-              board()?.board.title ||
-              ""
-            }
-            saveAction={(value: string) =>
-              updateBoardNameAction(+props.params.id, value)
-            }
-          />
-        </h1>
+          <h1 class="mb-4">
+            <EditableText
+              text={
+                (submission.input && submission.input[1]) ||
+                board().board.title ||
+                ""
+              }
+              saveAction={(value: string) =>
+                updateBoardNameAction(+props.params.id, value)
+              }
+            />
+          </h1>
 
-        <div>
-          <Board board={board()!} />
-        </div>
-      </main>
+          <div>
+            <Board board={board()} />
+          </div>
+        </main>
+      )}
     </Show>
   );
 }

@@ -30,6 +30,7 @@ export type BoardId = string & { __brand?: "BoardId" };
 export type Board = {
   id: BoardId;
   title: string;
+  color: string;
 };
 
 export type BoardData = {
