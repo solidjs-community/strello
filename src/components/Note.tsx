@@ -284,7 +284,7 @@ export function AddNote(props: {
                 inputRef = el;
                 setTimeout(() => requestAnimationFrame(() => void el.focus()));
               }}
-              class="textarea"
+              class="textarea dark:text-white"
               placeholder="Add a Note"
               required
             />
