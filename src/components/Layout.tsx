@@ -26,7 +26,7 @@ export default function Layout(props: ParentProps) {
               target="_blank"
               rel="noopener noreferrer"
             >
-              <GitHubIcon class="h-6 w-6 fill-slate-800 dark:fill-slate-200 group-hover:dark:fill-white" />
+              <GitHubIcon class="h-6 w-6 fill-slate-200 group-hover:fill-white" />
             </A>
             <A
               href="https://discord.com/invite/solidjs"
@@ -35,7 +35,7 @@ export default function Layout(props: ParentProps) {
               target="_blank"
               rel="noopener noreferrer"
             >
-              <DiscordIcon class="h-6 w-6 fill-slate-800 dark:fill-slate-200 group-hover:dark:fill-white" />
+              <DiscordIcon class="h-6 w-6 fill-slate-200 group-hover:fill-white" />
             </A>
 
             <Show when={user()} fallback={<A href="/login">Login</A>}>

@@ -288,7 +288,7 @@ export function AddColumn(props: { board: BoardId; onAdd: () => void }) {
               (inputRef = el),
                 setTimeout(() => requestAnimationFrame(() => el.focus()));
             }}
-            class="input"
+            class="input dark:text-white"
             placeholder="Add a Column"
             required
           />
