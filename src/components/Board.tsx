@@ -41,62 +41,61 @@ export type BoardData = {
 
 type Mutation =
   | {
-      type: "createNote";
-      id: NoteId;
-      column: ColumnId;
-      board: BoardId;
-      body: string;
-      order: number;
-      timestamp: number;
-    }
+    type: "createNote";
+    id: NoteId;
+    column: ColumnId;
+    board: BoardId;
+    body: string;
+    order: number;
+    timestamp: number;
+  }
   | {
-      type: "editNote";
-      id: NoteId;
-      content: string;
-      timestamp: number;
-    }
+    type: "editNote";
+    id: NoteId;
+    content: string;
+    timestamp: number;
+  }
   | {
-      type: "moveNote";
-      id: NoteId;
-      column: ColumnId;
-      order: number;
-      timestamp: number;
-    }
+    type: "moveNote";
+    id: NoteId;
+    column: ColumnId;
+    order: number;
+    timestamp: number;
+  }
   | {
-      type: "deleteNote";
-      id: NoteId;
-      timestamp: number;
-    }
+    type: "deleteNote";
+    id: NoteId;
+    timestamp: number;
+  }
   | {
-      type: "createColumn";
-      id: ColumnId;
-      board: string;
-      title: string;
-      timestamp: number;
-    }
+    type: "createColumn";
+    id: ColumnId;
+    board: string;
+    title: string;
+    timestamp: number;
+  }
   | {
-      type: "renameColumn";
-      id: ColumnId;
-      title: string;
-      timestamp: number;
-    }
+    type: "renameColumn";
+    id: ColumnId;
+    title: string;
+    timestamp: number;
+  }
   | {
-      type: "moveColumn";
-      id: ColumnId;
-      order: number;
-      timestamp: number;
-    }
+    type: "moveColumn";
+    id: ColumnId;
+    order: number;
+    timestamp: number;
+  }
   | {
-      type: "deleteColumn";
-      id: ColumnId;
-      timestamp: number;
-    };
+    type: "deleteColumn";
+    id: ColumnId;
+    timestamp: number;
+  };
 
 export function Board(props: { board: BoardData }) {
   const [boardStore, setBoardStore] = createStore({
     columns: props.board.columns,
     notes: props.board.notes,
-    timestamp: 0,
   });
 
   const createNoteSubmission = useSubmissions(createNote);
@@ -223,43 +222,32 @@ export function Board(props: { board: BoardData }) {
   createEffect(() => {
     const mutations = untrack(() => getMutations());
 
-    const prevTimestamp = untrack(() => boardStore.timestamp);
-    const latestMutations = mutations.filter(
-      (m) => m.timestamp > prevTimestamp
-    );
-
     const notes = [...props.board.notes];
     const columns = [...props.board.columns];
-    applyMutations(latestMutations, notes, columns);
+    applyMutations(mutations, notes, columns);
 
     console.log(
       `got server data, reset the board with mutations`,
-      ...latestMutations
+      ...mutations
     );
 
     batch(() => {
       setBoardStore("notes", reconcile(notes));
       setBoardStore("columns", reconcile(columns));
-      setBoardStore("timestamp", Date.now());
     });
   });
 
   createEffect(() => {
     const mutations = getMutations();
-    const prevTimestamp = untrack(() => boardStore.timestamp);
-    const latestMutations = mutations.filter(
-      (m) => m.timestamp > prevTimestamp
-    );
 
     console.log(
       `found submission, apply optimistic update with mutations`,
-      ...latestMutations
+      ...mutations
     );
 
     setBoardStore(
       produce((b) => {
-        applyMutations(latestMutations, b.notes, b.columns);
-        b.timestamp = Date.now();
+        applyMutations(mutations, b.notes, b.columns);
       })
     );
   });
