@@ -1,6 +1,6 @@
 import { Action, useSubmissions } from "@solidjs/router";
-import { For, batch, createEffect, createMemo } from "solid-js";
-import { createStore, reconcile } from "solid-js/store";
+import { For, batch, createEffect, createMemo, untrack } from "solid-js";
+import { createStore, produce, reconcile } from "solid-js/store";
 import {
   AddColumn,
   Column,
@@ -44,6 +44,7 @@ type Mutation =
       type: "createNote";
       id: NoteId;
       column: ColumnId;
+      board: BoardId;
       body: string;
       order: number;
       timestamp: number;
@@ -93,9 +94,9 @@ type Mutation =
 
 export function Board(props: { board: BoardData }) {
   const [boardStore, setBoardStore] = createStore({
-    board: props.board.board,
     columns: props.board.columns,
     notes: props.board.notes,
+    timestamp: 0,
   });
 
   const createNoteSubmission = useSubmissions(createNote);
@@ -107,7 +108,7 @@ export function Board(props: { board: BoardData }) {
   const moveColumnSubmission = useSubmissions(moveColumn);
   const deleteColumnSubmission = useSubmissions(deleteColumn);
 
-  createEffect(() => {
+  function getMutations() {
     const mutations: Mutation[] = [];
 
     for (const note of createNoteSubmission.values()) {
@@ -115,6 +116,7 @@ export function Board(props: { board: BoardData }) {
       const [{ id, column, body, order, timestamp }] = note.input;
       mutations.push({
         type: "createNote",
+        board: props.board.board.id,
         id,
         column,
         body,
@@ -200,79 +202,61 @@ export function Board(props: { board: BoardData }) {
       });
     }
 
-    const newNotes = [...props.board.notes];
-    const newColumns = [...props.board.columns];
-    const newBoard = Object.assign({}, props.board.board);
+    return mutations;
+  }
 
-    for (const mut of mutations.sort((a, b) => a.timestamp - b.timestamp)) {
-      switch (mut.type) {
-        case "createNote": {
-          newNotes.push({
-            id: mut.id,
-            column: mut.column,
-            body: mut.body,
-            order: mut.order,
-            board: props.board.board.id,
-          });
-          break;
-        }
-        case "moveNote": {
-          const index = newNotes.findIndex((n) => n.id === mut.id);
-          if (index === -1) break;
-          newNotes[index] = {
-            ...newNotes[index],
-            column: mut.column,
-            order: mut.order,
-          };
-          break;
-        }
-        case "editNote": {
-          const index = newNotes.findIndex((n) => n.id === mut.id);
-          if (index === -1) break;
-          newNotes[index] = { ...newNotes[index], body: mut.content };
-          break;
-        }
-        case "deleteNote": {
-          const index = newNotes.findIndex((n) => n.id === mut.id);
-          if (index === -1) break;
-          newNotes.splice(index, 1);
-          break;
-        }
-        case "createColumn": {
-          newColumns.push({
-            id: mut.id,
-            board: mut.board,
-            title: mut.title,
-            order: newColumns.length + 1,
-          });
-          break;
-        }
-        case "renameColumn": {
-          const index = newColumns.findIndex((c) => c.id === mut.id);
-          if (index === -1) break;
-          newColumns[index] = { ...newColumns[index], title: mut.title };
-          break;
-        }
-        case "moveColumn": {
-          const index = newColumns.findIndex((c) => c.id === mut.id);
-          if (index === -1) break;
-          newColumns[index] = { ...newColumns[index], order: mut.order };
-          break;
-        }
-        case "deleteColumn": {
-          const index = newColumns.findIndex((c) => c.id === mut.id);
-          if (index === -1) break;
-          newColumns.splice(index, 1);
-          break;
-        }
-      }
-    }
+  // current approach
+  // createEffect(() => {
+  //   const mutations = getMutations();
+
+  //   const newNotes = [...props.board.notes];
+  //   const newColumns = [...props.board.columns];
+
+  //   applyMutations(mutations, newNotes, newColumns);
+
+  //   batch(() => {
+  //     setBoardStore("notes", reconcile(newNotes));
+  //     setBoardStore("columns", reconcile(newColumns));
+  //   });
+  // });
+
+  createEffect(() => {
+    const mutations = untrack(() => getMutations());
+
+    const notes = [...props.board.notes];
+    const columns = [...props.board.columns];
+    applyMutations(mutations, notes, columns);
+
+    console.log(
+      `got server data, reset the board with mutations`,
+      ...mutations
+    );
 
     batch(() => {
-      setBoardStore("notes", reconcile(newNotes));
-      setBoardStore("columns", reconcile(newColumns));
-      setBoardStore("board", reconcile(newBoard));
+      setBoardStore("notes", reconcile(notes));
+      setBoardStore("columns", reconcile(columns));
+      setBoardStore("timestamp", Date.now());
     });
+  });
+
+  createEffect(() => {
+    const mutations = getMutations();
+    const prevTimestamp = untrack(() => boardStore.timestamp);
+    const latestMutations = mutations.filter(
+      (m) => m.timestamp > prevTimestamp
+    );
+
+    console.log(
+      `found submission, apply optimistic update with mutations`,
+      ...latestMutations
+    );
+
+    setBoardStore(
+      produce((b) => {
+        applyMutations(latestMutations, b.notes, b.columns);
+        b.timestamp = Date.now();
+      })
+    );
   });
 
   const sortedColumns = createMemo(() =>
@@ -294,7 +278,7 @@ export function Board(props: { board: BoardData }) {
           <>
             <Column
               column={column}
-              board={boardStore.board}
+              board={props.board.board}
               notes={boardStore.notes}
             />
             <ColumnGap
@@ -305,7 +289,7 @@ export function Board(props: { board: BoardData }) {
         )}
       </For>
       <AddColumn
-        board={boardStore.board.id}
+        board={props.board.board.id}
         onAdd={() => {
           scrollContainerRef &&
             (scrollContainerRef.scrollLeft = scrollContainerRef.scrollWidth);
@@ -313,4 +297,75 @@ export function Board(props: { board: BoardData }) {
       />
     </div>
   );
+}
+
+function applyMutations(
+  mutations: Mutation[],
+  notes: Note[],
+  columns: Column[]
+) {
+  for (const mut of mutations.sort((a, b) => a.timestamp - b.timestamp)) {
+    switch (mut.type) {
+      case "createNote": {
+        const index = notes.findIndex((n) => n.id === mut.id);
+        if (index === -1)
+          notes.push({
+            id: mut.id,
+            column: mut.column,
+            body: mut.body,
+            order: mut.order,
+            board: mut.board,
+          });
+        break;
+      }
+      case "moveNote": {
+        const index = notes.findIndex((n) => n.id === mut.id);
+        if (index !== -1)
+          notes[index] = {
+            ...notes[index],
+            column: mut.column,
+            order: mut.order,
+          };
+        break;
+      }
+      case "editNote": {
+        const index = notes.findIndex((n) => n.id === mut.id);
+        if (index !== -1) notes[index] = { ...notes[index], body: mut.content };
+        break;
+      }
+      case "deleteNote": {
+        const index = notes.findIndex((n) => n.id === mut.id);
+        if (index !== -1) notes.splice(index, 1);
+        break;
+      }
+      case "createColumn": {
+        const index = columns.findIndex((c) => c.id === mut.id);
+        if (index === -1)
+          columns.push({
+            id: mut.id,
+            board: mut.board,
+            title: mut.title,
+            order: columns.length + 1,
+          });
+        break;
+      }
+      case "renameColumn": {
+        const index = columns.findIndex((c) => c.id === mut.id);
+        if (index !== -1)
+          columns[index] = { ...columns[index], title: mut.title };
+        break;
+      }
+      case "moveColumn": {
+        const index = columns.findIndex((c) => c.id === mut.id);
+        if (index !== -1)
+          columns[index] = { ...columns[index], order: mut.order };
+        break;
+      }
+      case "deleteColumn": {
+        const index = columns.findIndex((c) => c.id === mut.id);
+        if (index !== -1) columns.splice(index, 1);
+        break;
+      }
+    }
+  }
 }
