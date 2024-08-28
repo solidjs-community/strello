@@ -223,18 +223,13 @@ export function Board(props: { board: BoardData }) {
   createEffect(() => {
     const mutations = untrack(() => getMutations());
 
-    const prevTimestamp = untrack(() => boardStore.timestamp);
-    const latestMutations = mutations.filter(
-      (m) => m.timestamp > prevTimestamp
-    );
-
     const notes = [...props.board.notes];
     const columns = [...props.board.columns];
-    applyMutations(latestMutations, notes, columns);
+    applyMutations(mutations, notes, columns);
 
     console.log(
       `got server data, reset the board with mutations`,
-      ...latestMutations
+      ...mutations
     );
 
     batch(() => {
@@ -306,68 +301,69 @@ export function Board(props: { board: BoardData }) {
 
 function applyMutations(
   mutations: Mutation[],
-  newNotes: Note[],
-  newColumns: Column[]
+  notes: Note[],
+  columns: Column[]
 ) {
   for (const mut of mutations.sort((a, b) => a.timestamp - b.timestamp)) {
     switch (mut.type) {
       case "createNote": {
-        newNotes.push({
-          id: mut.id,
-          column: mut.column,
-          body: mut.body,
-          order: mut.order,
-          board: mut.board,
-        });
+        const index = notes.findIndex((n) => n.id === mut.id);
+        if (index === -1)
+          notes.push({
+            id: mut.id,
+            column: mut.column,
+            body: mut.body,
+            order: mut.order,
+            board: mut.board,
+          });
         break;
       }
       case "moveNote": {
-        const index = newNotes.findIndex((n) => n.id === mut.id);
-        if (index === -1) break;
-        newNotes[index] = {
-          ...newNotes[index],
-          column: mut.column,
-          order: mut.order,
-        };
+        const index = notes.findIndex((n) => n.id === mut.id);
+        if (index !== -1)
+          notes[index] = {
+            ...notes[index],
+            column: mut.column,
+            order: mut.order,
+          };
         break;
       }
       case "editNote": {
-        const index = newNotes.findIndex((n) => n.id === mut.id);
-        if (index === -1) break;
-        newNotes[index] = { ...newNotes[index], body: mut.content };
+        const index = notes.findIndex((n) => n.id === mut.id);
+        if (index !== -1) notes[index] = { ...notes[index], body: mut.content };
         break;
       }
       case "deleteNote": {
-        const index = newNotes.findIndex((n) => n.id === mut.id);
-        if (index === -1) break;
-        newNotes.splice(index, 1);
+        const index = notes.findIndex((n) => n.id === mut.id);
+        if (index !== -1) notes.splice(index, 1);
         break;
       }
       case "createColumn": {
-        newColumns.push({
-          id: mut.id,
-          board: mut.board,
-          title: mut.title,
-          order: newColumns.length + 1,
-        });
+        const index = columns.findIndex((c) => c.id === mut.id);
+        if (index === -1)
+          columns.push({
+            id: mut.id,
+            board: mut.board,
+            title: mut.title,
+            order: columns.length + 1,
+          });
         break;
       }
       case "renameColumn": {
-        const index = newColumns.findIndex((c) => c.id === mut.id);
-        if (index === -1) break;
-        newColumns[index] = { ...newColumns[index], title: mut.title };
+        const index = columns.findIndex((c) => c.id === mut.id);
+        if (index !== -1)
+          columns[index] = { ...columns[index], title: mut.title };
         break;
       }
       case "moveColumn": {
-        const index = newColumns.findIndex((c) => c.id === mut.id);
-        if (index === -1) break;
-        newColumns[index] = { ...newColumns[index], order: mut.order };
+        const index = columns.findIndex((c) => c.id === mut.id);
+        if (index !== -1)
+          columns[index] = { ...columns[index], order: mut.order };
         break;
       }
       case "deleteColumn": {
-        const index = newColumns.findIndex((c) => c.id === mut.id);
-        if (index === -1) break;
-        newColumns.splice(index, 1);
+        const index = columns.findIndex((c) => c.id === mut.id);
+        if (index !== -1) columns.splice(index, 1);
         break;
       }
     }
