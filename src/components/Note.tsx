@@ -116,6 +116,7 @@ export type Note = {
   column: ColumnId;
   order: number;
   body: string;
+  isPending?: boolean;
 };
 
 export function Note(props: { note: Note; previous?: Note; next?: Note }) {
@@ -134,7 +135,7 @@ export function Note(props: { note: Note; previous?: Note; next?: Note }) {
   return (
     <div
       style={{
-        opacity: isBeingDragged() ? 0.25 : 1,
+        opacity: props.note.isPending || isBeingDragged() ? 0.25 : 1,
         "border-top":
           acceptDrop() === "top" ? "2px solid red" : "2px solid transparent",
         "border-bottom":

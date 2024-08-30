@@ -253,7 +253,8 @@ export function Board(props: { board: BoardData }) {
 
     setBoardStore(
       produce((b) => {
-        applyMutations(latestMutations, b.notes, b.columns);
+        const isPending = true;
+        applyMutations(latestMutations, b.notes, b.columns, isPending);
         b.timestamp = Date.now();
       })
     );
@@ -302,7 +303,8 @@ export function Board(props: { board: BoardData }) {
 function applyMutations(
   mutations: Mutation[],
   notes: Note[],
-  columns: Column[]
+  columns: Column[],
+  isPending?: boolean
 ) {
   for (const mut of mutations.sort((a, b) => a.timestamp - b.timestamp)) {
     switch (mut.type) {
@@ -315,6 +317,7 @@ function applyMutations(
             body: mut.body,
             order: mut.order,
             board: mut.board,
+            isPending
           });
         break;
       }
@@ -325,12 +328,13 @@ function applyMutations(
             ...notes[index],
             column: mut.column,
             order: mut.order,
+            isPending
           };
         break;
       }
       case "editNote": {
         const index = notes.findIndex((n) => n.id === mut.id);
-        if (index !== -1) notes[index] = { ...notes[index], body: mut.content };
+        if (index !== -1) notes[index] = { ...notes[index], body: mut.content, isPending };
         break;
       }
       case "deleteNote": {
