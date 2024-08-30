@@ -41,56 +41,56 @@ export type BoardData = {
 
 type Mutation =
   | {
-      type: "createNote";
-      id: NoteId;
-      column: ColumnId;
-      board: BoardId;
-      body: string;
-      order: number;
-      timestamp: number;
-    }
+    type: "createNote";
+    id: NoteId;
+    column: ColumnId;
+    board: BoardId;
+    body: string;
+    order: number;
+    timestamp: number;
+  }
   | {
-      type: "editNote";
-      id: NoteId;
-      content: string;
-      timestamp: number;
-    }
+    type: "editNote";
+    id: NoteId;
+    content: string;
+    timestamp: number;
+  }
   | {
-      type: "moveNote";
-      id: NoteId;
-      column: ColumnId;
-      order: number;
-      timestamp: number;
-    }
+    type: "moveNote";
+    id: NoteId;
+    column: ColumnId;
+    order: number;
+    timestamp: number;
+  }
   | {
-      type: "deleteNote";
-      id: NoteId;
-      timestamp: number;
-    }
+    type: "deleteNote";
+    id: NoteId;
+    timestamp: number;
+  }
   | {
-      type: "createColumn";
-      id: ColumnId;
-      board: string;
-      title: string;
-      timestamp: number;
-    }
+    type: "createColumn";
+    id: ColumnId;
+    board: string;
+    title: string;
+    timestamp: number;
+  }
   | {
-      type: "renameColumn";
-      id: ColumnId;
-      title: string;
-      timestamp: number;
-    }
+    type: "renameColumn";
+    id: ColumnId;
+    title: string;
+    timestamp: number;
+  }
   | {
-      type: "moveColumn";
-      id: ColumnId;
-      order: number;
-      timestamp: number;
-    }
+    type: "moveColumn";
+    id: ColumnId;
+    order: number;
+    timestamp: number;
+  }
   | {
-      type: "deleteColumn";
-      id: ColumnId;
-      timestamp: number;
-    };
+    type: "deleteColumn";
+    id: ColumnId;
+    timestamp: number;
+  };
 
 export function Board(props: { board: BoardData }) {
   const [boardStore, setBoardStore] = createStore({
