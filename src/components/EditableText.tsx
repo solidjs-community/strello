@@ -35,7 +35,7 @@ export default function EditableText(props: {
             }}
           >
             <input
-              class="text-2xl font-medium block rounded-lg text-left border border-transparent py-1 px-2"
+              class="dark:text-white text-2xl font-medium block rounded-lg text-left border border-transparent py-1 px-2"
               type="text"
               required
               name="editable_text"

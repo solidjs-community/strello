@@ -262,11 +262,17 @@ export function AddNote(props: {
             class="flex flex-col space-y-2 card w-full"
             onSubmit={(e) => {
               e.preventDefault();
+              const body = inputRef?.value.trim() ?? 'Note'
+              if (body === '') {
+                inputRef?.setCustomValidity('Please fill out this field.');
+                inputRef?.reportValidity();
+                return;
+              }
               addNote({
                 id: crypto.randomUUID() as NoteId,
                 board: props.board,
                 column: props.column,
-                body: inputRef?.value ?? "Note",
+                body,
                 order: props.length + 1,
                 timestamp: new Date().getTime(),
               });
