@@ -5,6 +5,7 @@ import {
   createAsync,
   redirect,
   useSubmission,
+  useSubmissions,
   type RouteDefinition,
 } from "@solidjs/router";
 import { BsTrash } from "solid-icons/bs";
@@ -65,12 +66,18 @@ export default function Home() {
   const user = createAsync(() => getUser(), { deferStream: true });
   const serverBoards = createAsync(() => getBoards());
   const addBoardSubmission = useSubmission(addBoard);
-  const deleteBoardSubmission = useSubmission(deleteBoard);
+  const deleteBoardSubmissions = useSubmissions(deleteBoard);
 
   const boards = () => {
-    if (deleteBoardSubmission.pending) {
+    if (deleteBoardSubmissions.pending) {
+      const deletedBoards: number[] = [];
+
+      for (const sub of deleteBoardSubmissions) {
+        deletedBoards.push(sub.input[0]);
+      }
+
       return serverBoards()?.filter(
-        (b) => b.id !== deleteBoardSubmission?.input[0]
+        (board) => !deletedBoards.includes(board.id)
       );
     }
 
@@ -106,6 +113,7 @@ export default function Home() {
                   required
                   id="name"
                   class="dark:text-white px-2 block w-full rounded-md border-0 py-1.5 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-brand-blue sm:text-sm sm:leading-6"
+                  disabled={addBoardSubmission.pending}
                 />
               </div>
             </div>
@@ -123,11 +131,13 @@ export default function Home() {
                   type="color"
                   class="bg-slate-800 bg-opacity-0 hover:bg-opacity-20 rounded"
                   value="#A2DEFF"
+                  disabled={addBoardSubmission.pending}
                 />
               </div>
               <button
                 type="submit"
                 class="flex w-full justify-center rounded-md bg-slate-900 text-white px-1 py-1 text-sm font-semibold leading-6 shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 hover:bg-slate-800"
+                disabled={addBoardSubmission.pending}
               >
                 {addBoardSubmission.pending ? "Creating..." : "Create"}
               </button>
