@@ -66,7 +66,7 @@ const updateBoardName = action(async (boardId: number, name: string) => {
 }, "update-board-name");
 
 export const route: RouteDefinition = {
-  load: (props) => fetchBoard(+props.params.id),
+  preload: (props) => fetchBoard(+props.params.id),
 };
 
 export default function Page(props: RouteSectionProps) {

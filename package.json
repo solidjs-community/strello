@@ -22,9 +22,9 @@
     "@libsql/client": "^0.6.1",
     "@prisma/adapter-libsql": "^5.14.0",
     "@prisma/client": "^5.7.0",
-    "@solidjs/meta": "^0.29.3",
-    "@solidjs/router": "^0.13.3",
-    "@solidjs/start": "^1.0.1",
+    "@solidjs/meta": "^0.29.4",
+    "@solidjs/router": "^0.14.3",
+    "@solidjs/start": "^1.0.6",
     "@unocss/reset": "^0.58.5",
     "better-sqlite3": "^9.4.3",
     "immer": "^10.0.4",
@@ -32,10 +32,10 @@
     "lowdb": "^7.0.1",
     "prisma": "^5.7.0",
     "solid-icons": "^1.1.0",
-    "solid-js": "^1.8.17",
+    "solid-js": "^1.8.22",
     "unimport": "^3.7.1",
     "unocss-preset-theme": "^0.12.0",
-    "vinxi": "^0.3.11"
+    "vinxi": "^0.4.2"
   },
   "engines": {
     "node": ">=18"

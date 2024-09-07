@@ -10,7 +10,7 @@ import { Title } from "@solidjs/meta";
 export const route = {
   // todo: review this pattern.
   // question: why does this function not call unless wrapped with cache?
-  load: () => redirectIfLoggedIn(),
+  preload: () => redirectIfLoggedIn(),
 } satisfies RouteDefinition;
 
 export default function Login(props: RouteSectionProps) {
