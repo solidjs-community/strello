@@ -1,4 +1,4 @@
-import { action, useAction } from "@solidjs/router";
+import { action, useAction, useSearchParams } from "@solidjs/router";
 import { BsPlus, BsTrash } from "solid-icons/bs";
 import { RiEditorDraggable } from "solid-icons/ri";
 import {
@@ -93,6 +93,7 @@ export function Column(props: { column: Column; board: Board; notes: Note[] }) {
   const renameAction = useAction(renameColumn);
   const deleteAction = useAction(deleteColumn);
   const moveNoteAction = useAction(moveNote);
+  const [params] = useSearchParams();
 
   const [acceptDrop, setAcceptDrop] = createSignal<boolean>(false);
 
@@ -137,7 +138,8 @@ export function Column(props: { column: Column; board: Board; notes: Note[] }) {
                 filteredNotes()[filteredNotes().length - 1]?.order,
                 undefined
               ),
-              new Date().getTime()
+              new Date().getTime(),
+              !!params.randomNetwork
             );
           }
         }

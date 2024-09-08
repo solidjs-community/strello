@@ -1,4 +1,4 @@
-import { action, useAction } from "@solidjs/router";
+import { action, useAction, useParams, useSearchParams } from "@solidjs/router";
 import { BsPlus, BsTrash } from "solid-icons/bs";
 import { RiEditorDraggable } from "solid-icons/ri";
 import { Match, Switch, createSignal } from "solid-js";
@@ -16,6 +16,7 @@ export const createNote = action(
     order,
     timestamp,
     board,
+    randomNetwork
   }: {
     id: NoteId;
     board: BoardId;
@@ -23,6 +24,7 @@ export const createNote = action(
     body: string;
     order: number;
     timestamp: number;
+    randomNetwork?: boolean
   }) => {
     "use server";
     const accountId = await getAuthUser();
@@ -44,6 +46,12 @@ export const createNote = action(
       create: mutation,
       update: mutation,
     });
+
+    // randomize the network
+    if (randomNetwork) {
+      const randomDuration = Math.floor(Math.random() * 6000) + 4000; // 4000 to 10000 ms
+      await new Promise(r => setTimeout(r, randomDuration));
+    }
 
     return true;
   },
@@ -75,7 +83,7 @@ export const editNote = action(
 );
 
 export const moveNote = action(
-  async (note: NoteId, column: ColumnId, order: number, timestamp: number) => {
+  async (note: NoteId, column: ColumnId, order: number, timestamp: number, randomNetwork?: boolean) => {
     "use server";
     const accountId = await getAuthUser();
     const mutation = {
@@ -94,16 +102,28 @@ export const moveNote = action(
       data: mutation,
     });
 
+    // randomize the network
+    if (randomNetwork) {
+      const randomDuration = Math.floor(Math.random() * 10000) + 1000; // 4000 to 10000 ms
+      await new Promise(r => setTimeout(r, randomDuration));
+    }
+
     return true;
   },
   "move-item"
 );
 
-export const deleteNote = action(async (id: NoteId, timestamp: number) => {
+export const deleteNote = action(async (id: NoteId, timestamp: number, randomNetwork?: boolean) => {
   "use server";
   const accountId = await getAuthUser();
 
   await db.item.delete({ where: { id, Board: { accountId } } });
+
+  // randomize the network
+  if (randomNetwork) {
+    const randomDuration = Math.floor(Math.random() * 6000) + 4000; // 4000 to 10000 ms
+    await new Promise(r => setTimeout(r, randomDuration));
+  }
 
   return true;
 }, "delete-card");
@@ -122,6 +142,7 @@ export function Note(props: { note: Note; previous?: Note; next?: Note }) {
   const updateAction = useAction(editNote);
   const deleteAction = useAction(deleteNote);
   const moveNoteAction = useAction(moveNote);
+  const [params] = useSearchParams();
 
   let input: HTMLTextAreaElement | undefined;
 
@@ -193,7 +214,8 @@ export function Note(props: { note: Note; previous?: Note; next?: Note }) {
                 noteId,
                 props.note.column,
                 getIndexBetween(props.previous?.order, props.note.order),
-                new Date().getTime()
+                new Date().getTime(),
+                !!params.randomNetwork
               );
             }
 
@@ -205,7 +227,8 @@ export function Note(props: { note: Note; previous?: Note; next?: Note }) {
                 noteId,
                 props.note.column,
                 getIndexBetween(props.note.order, props.next?.order),
-                new Date().getTime()
+                new Date().getTime(),
+                !!params.randomNetwork
               );
             }
           }
@@ -235,7 +258,7 @@ export function Note(props: { note: Note; previous?: Note; next?: Note }) {
       </textarea>
       <button
         class="btn btn-ghost btn-sm btn-circle"
-        onClick={() => deleteAction(props.note.id, new Date().getTime())}
+        onClick={() => deleteAction(props.note.id, new Date().getTime(), !!params.randomNetwork)}
       >
         <BsTrash />
       </button>
@@ -251,6 +274,7 @@ export function AddNote(props: {
 }) {
   const [active, setActive] = createSignal(false);
   const addNote = useAction(createNote);
+  const [params] = useSearchParams();
 
   let inputRef: HTMLInputElement | undefined;
 
@@ -275,6 +299,7 @@ export function AddNote(props: {
                 body,
                 order: props.length + 1,
                 timestamp: new Date().getTime(),
+                randomNetwork: !!params.randomNetwork
               });
               inputRef && (inputRef.value = "");
               props.onAdd();
