@@ -56,7 +56,7 @@ const getBoards = cache(async () => {
 }, "get-boards");
 
 export const route = {
-  load: () => {
+  preload: () => {
     getUser();
     getBoards();
   },
