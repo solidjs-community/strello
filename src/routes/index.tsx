@@ -48,6 +48,10 @@ const getBoards = cache(async () => {
   const session = await getSession();
   const userId = session.data.userId;
 
+  if (!userId) {
+    return redirect("/login");
+  }
+
   return db.board.findMany({
     where: {
       accountId: userId,
