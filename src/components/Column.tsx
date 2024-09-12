@@ -105,7 +105,7 @@ export function Column(props: { column: Column; board: Board; notes: Note[] }) {
   return (
     <div
       draggable="true"
-      class="w-full max-w-[300px] shrink-0 card bg-slate-100 overflow-y-scroll max-h-[75vh]"
+      class="w-full max-w-[300px] shrink-0 card bg-slate-100 max-h-[75vh]"
       style={{
         border:
           acceptDrop() === true ? "2px solid red" : "2px solid transparent",
