@@ -11,14 +11,14 @@ import {
 import { BsTrash } from "solid-icons/bs";
 import { For, Show, onMount } from "solid-js";
 import { getUser } from "~/lib";
-import { getSession } from "~/lib/auth";
+import { getAuthUser } from "~/lib/auth";
 import { db } from "~/lib/db";
 
 const addBoard = action(async (formData: FormData) => {
   "use server";
 
-  const session = await getSession();
-  const userId = session.data.userId;
+  const userId = await getAuthUser();
+
   const name = String(formData.get("name"));
   const color = String(formData.get("color"));
 
@@ -30,13 +30,12 @@ const addBoard = action(async (formData: FormData) => {
     },
   });
 
-  return redirect(`/board/${board.id}`);
+  throw redirect(`/board/${board.id}`);
 }, "add-board");
 
 const deleteBoard = action(async (boardId: number) => {
   "use server";
-  const session = await getSession();
-  const userId = session.data.userId;
+  const userId = await getAuthUser();
 
   await db.board.delete({
     where: { id: boardId, accountId: userId },
@@ -45,11 +44,10 @@ const deleteBoard = action(async (boardId: number) => {
 
 const getBoards = cache(async () => {
   "use server";
-  const session = await getSession();
-  const userId = session.data.userId;
+  const userId = await getAuthUser();
 
   if (!userId) {
-    return redirect("/login");
+    throw redirect("/login");
   }
 
   return db.board.findMany({
@@ -67,7 +65,7 @@ export const route = {
 } satisfies RouteDefinition;
 
 export default function Home() {
-  const user = createAsync(() => getUser(), { deferStream: true });
+  const user = createAsync(() => getUser());
   const serverBoards = createAsync(() => getBoards());
   const addBoardSubmission = useSubmission(addBoard);
   const deleteBoardSubmissions = useSubmissions(deleteBoard);

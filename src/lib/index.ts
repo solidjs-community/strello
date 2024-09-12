@@ -1,25 +1,15 @@
 import { action, cache, redirect } from "@solidjs/router";
 import { db } from "./db";
 import { login, register, validateEmail, validatePassword } from "./server";
-import {
-  getAuthUser,
-  getSession,
-  logoutSession,
-  setAuthOnResponse,
-} from "./auth";
+import { getAuthUser, logoutSession, setAuthOnResponse } from "./auth";
 
 export const getUser = cache(async () => {
   "use server";
-  try {
-    const session = await getSession();
-    const userId = session.data.userId;
-    if (userId === undefined) throw new Error("User not found");
-    const user = await db.account.findUnique({ where: { id: userId } });
-    if (!user) throw new Error("User not found");
-    return { id: user.id, email: user.email };
-  } catch {
-    return redirect("/login");
-  }
+  const userId = await getAuthUser();
+  if (!userId) throw redirect("/login");
+  const user = await db.account.findUnique({ where: { id: userId } });
+  if (!user) throw redirect("/login");
+  return { id: user.id, email: user.email };
 }, "user");
 
 export const loginOrRegister = action(async (formData: FormData) => {
@@ -38,13 +28,13 @@ export const loginOrRegister = action(async (formData: FormData) => {
   } catch (err) {
     return err as Error;
   }
-  return redirect("/");
+  throw redirect("/");
 });
 
 export const logout = action(async () => {
   "use server";
   await logoutSession();
-  return redirect("/login");
+  throw redirect("/login");
 });
 
 export const redirectIfLoggedIn = cache(async () => {
@@ -52,7 +42,7 @@ export const redirectIfLoggedIn = cache(async () => {
 
   let userId = await getAuthUser();
   if (userId) {
-    return redirect("/");
+    throw redirect("/");
   }
   return null;
 }, "loggedIn");
