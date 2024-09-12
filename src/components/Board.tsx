@@ -208,8 +208,7 @@ export function Board(props: { board: BoardData }) {
   createEffect(() => {
     const mutations = untrack(() => getMutations());
 
-    const notes = [...props.board.notes];
-    const columns = [...props.board.columns];
+    const { notes, columns } = props.board;
     applyMutations(mutations, notes, columns);
 
     console.log(
