@@ -306,8 +306,10 @@ function applyMutations(
       }
       case "moveNote": {
         const index = notes.findIndex((n) => n.id === mut.id);
-        if (index !== -1) notes[index].column = mut.column;
-        notes[index].order = mut.order;
+        if (index !== -1) {
+          notes[index].column = mut.column;
+          notes[index].order = mut.order;
+        }
         break;
       }
       case "editNote": {
