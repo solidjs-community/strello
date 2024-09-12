@@ -41,56 +41,56 @@ export type BoardData = {
 
 type Mutation =
   | {
-    type: "createNote";
-    id: NoteId;
-    column: ColumnId;
-    board: BoardId;
-    body: string;
-    order: number;
-    timestamp: number;
-  }
+      type: "createNote";
+      id: NoteId;
+      column: ColumnId;
+      board: BoardId;
+      body: string;
+      order: number;
+      timestamp: number;
+    }
   | {
-    type: "editNote";
-    id: NoteId;
-    content: string;
-    timestamp: number;
-  }
+      type: "editNote";
+      id: NoteId;
+      content: string;
+      timestamp: number;
+    }
   | {
-    type: "moveNote";
-    id: NoteId;
-    column: ColumnId;
-    order: number;
-    timestamp: number;
-  }
+      type: "moveNote";
+      id: NoteId;
+      column: ColumnId;
+      order: number;
+      timestamp: number;
+    }
   | {
-    type: "deleteNote";
-    id: NoteId;
-    timestamp: number;
-  }
+      type: "deleteNote";
+      id: NoteId;
+      timestamp: number;
+    }
   | {
-    type: "createColumn";
-    id: ColumnId;
-    board: string;
-    title: string;
-    timestamp: number;
-  }
+      type: "createColumn";
+      id: ColumnId;
+      board: string;
+      title: string;
+      timestamp: number;
+    }
   | {
-    type: "renameColumn";
-    id: ColumnId;
-    title: string;
-    timestamp: number;
-  }
+      type: "renameColumn";
+      id: ColumnId;
+      title: string;
+      timestamp: number;
+    }
   | {
-    type: "moveColumn";
-    id: ColumnId;
-    order: number;
-    timestamp: number;
-  }
+      type: "moveColumn";
+      id: ColumnId;
+      order: number;
+      timestamp: number;
+    }
   | {
-    type: "deleteColumn";
-    id: ColumnId;
-    timestamp: number;
-  };
+      type: "deleteColumn";
+      id: ColumnId;
+      timestamp: number;
+    };
 
 export function Board(props: { board: BoardData }) {
   const [boardStore, setBoardStore] = createStore({
@@ -205,26 +205,10 @@ export function Board(props: { board: BoardData }) {
     return mutations;
   }
 
-  // current approach
-  // createEffect(() => {
-  //   const mutations = getMutations();
-
-  //   const newNotes = [...props.board.notes];
-  //   const newColumns = [...props.board.columns];
-
-  //   applyMutations(mutations, newNotes, newColumns);
-
-  //   batch(() => {
-  //     setBoardStore("notes", reconcile(newNotes));
-  //     setBoardStore("columns", reconcile(newColumns));
-  //   });
-  // });
-
   createEffect(() => {
     const mutations = untrack(() => getMutations());
 
-    const notes = [...props.board.notes];
-    const columns = [...props.board.columns];
+    const { notes, columns } = props.board;
     applyMutations(mutations, notes, columns);
 
     console.log(
@@ -250,6 +234,8 @@ export function Board(props: { board: BoardData }) {
       `found submission, apply optimistic update with mutations`,
       ...latestMutations
     );
+
+    if (!optimisticUpdates) return console.log(`Skipping optimistic update`);
 
     setBoardStore(
       produce((b) => {
@@ -320,17 +306,13 @@ function applyMutations(
       }
       case "moveNote": {
         const index = notes.findIndex((n) => n.id === mut.id);
-        if (index !== -1)
-          notes[index] = {
-            ...notes[index],
-            column: mut.column,
-            order: mut.order,
-          };
+        if (index !== -1) notes[index].column = mut.column;
+        notes[index].order = mut.order;
         break;
       }
       case "editNote": {
         const index = notes.findIndex((n) => n.id === mut.id);
-        if (index !== -1) notes[index] = { ...notes[index], body: mut.content };
+        if (index !== -1) notes[index].body = mut.content;
         break;
       }
       case "deleteNote": {
@@ -351,14 +333,12 @@ function applyMutations(
       }
       case "renameColumn": {
         const index = columns.findIndex((c) => c.id === mut.id);
-        if (index !== -1)
-          columns[index] = { ...columns[index], title: mut.title };
+        if (index !== -1) columns[index].title = mut.title;
         break;
       }
       case "moveColumn": {
         const index = columns.findIndex((c) => c.id === mut.id);
-        if (index !== -1)
-          columns[index] = { ...columns[index], order: mut.order };
+        if (index !== -1) columns[index].order = mut.order;
         break;
       }
       case "deleteColumn": {
@@ -368,4 +348,13 @@ function applyMutations(
       }
     }
   }
+}
+
+let optimisticUpdates = true;
+if (typeof window !== "undefined") {
+  // disable optimistic updates in production for testing/demonstration purposes
+  // @ts-expect-error
+  window.toggleOptimistic = () => {
+    optimisticUpdates = !optimisticUpdates;
+  };
 }
