@@ -4,6 +4,8 @@
 
 # Strello
 
+You can check this out hosted at [strello.netlify.app/](https://strello.netlify.app/)
+
 A clone of the <a href="https://trellix.fly.dev/">Remix Run Trellix</a> example project to demonstrate SolidStart's capabilities.
 
 To get started run:
