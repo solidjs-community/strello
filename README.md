@@ -1,3 +1,7 @@
+<p>
+  <img width="100%" src="https://assets.solidjs.com/banner?type=Strello&background=tiles&project=%20" alt="Strello">
+</p>
+
 # Strello
 
 A clone of the <a href="https://trellix.fly.dev/">Remix Run Trellix</a> example project to demonstrate SolidStart's capabilities.
