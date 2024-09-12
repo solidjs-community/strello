@@ -1,5 +1,5 @@
 {
-  "name": "solid-trellix",
+  "name": "strello",
   "type": "module",
   "scripts": {
     "dev": "vinxi dev",
