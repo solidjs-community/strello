@@ -19,6 +19,8 @@ const fetchBoard = cache(async (boardId: number) => {
   "use server";
   const accountId = await getAuthUser();
 
+  if (!accountId) throw redirect("/");
+
   const boardFromDataBase = await db.board.findUnique({
     where: {
       id: boardId,
