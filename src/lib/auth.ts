@@ -30,14 +30,6 @@ export async function setAuthOnResponse(userId: string) {
   await session.update((user: UserSession) => ((user.userId = userId), user));
 }
 
-export async function requireAuth() {
-  let userId = await getAuthUser();
-  if (!userId) {
-    await logoutSession();
-  }
-  return userId;
-}
-
 export async function logoutSession() {
   const session = await getSession();
   await session.update((user: UserSession) => (user.userId = undefined));
