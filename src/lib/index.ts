@@ -24,6 +24,7 @@ export const getUser = cache(async () => {
 
 export const loginOrRegister = action(async (formData: FormData) => {
   "use server";
+
   const email = String(formData.get("email"));
   const password = String(formData.get("password"));
   const loginType = String(formData.get("loginType"));
