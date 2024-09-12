@@ -350,9 +350,11 @@ function applyMutations(
   }
 }
 
-// disable optimistic updates in production for testing/demonstration purposes
 let optimisticUpdates = true;
-// @ts-expect-error
-window.toggleOptimistic = () => {
-  optimisticUpdates = !optimisticUpdates;
-};
+if (typeof window !== "undefined") {
+  // disable optimistic updates in production for testing/demonstration purposes
+  // @ts-expect-error
+  window.toggleOptimistic = () => {
+    optimisticUpdates = !optimisticUpdates;
+  };
+}
