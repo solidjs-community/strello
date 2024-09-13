@@ -23,7 +23,7 @@
     "@prisma/adapter-libsql": "^5.14.0",
     "@prisma/client": "^5.7.0",
     "@solidjs/meta": "^0.29.4",
-    "@solidjs/router": "^0.14.3",
+    "@solidjs/router": "^0.14.5",
     "@solidjs/start": "^1.0.6",
     "@unocss/reset": "^0.58.5",
     "better-sqlite3": "^9.4.3",
