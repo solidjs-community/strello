@@ -3,59 +3,16 @@ import {
   RouteDefinition,
   RouteSectionProps,
   action,
-  cache,
   createAsync,
-  redirect,
   useAction,
   useSubmission,
 } from "@solidjs/router";
 import { Show } from "solid-js";
-import { Board, BoardData } from "~/components/Board";
+import { Board } from "~/components/Board";
 import EditableText from "~/components/EditableText";
+import { fetchBoard } from "~/lib";
 import { getAuthUser } from "~/lib/auth";
 import { db } from "~/lib/db";
-
-const fetchBoard = cache(async (boardId: number) => {
-  "use server";
-  const accountId = await getAuthUser();
-
-  if (!accountId) throw redirect("/login");
-
-  const boardFromDataBase = await db.board.findUnique({
-    where: {
-      id: boardId,
-      accountId,
-    },
-    include: {
-      items: true,
-      columns: { orderBy: { order: "asc" } },
-    },
-  });
-
-  if (!boardFromDataBase) throw redirect("/");
-
-  // mapping the db to what the board expects
-  return {
-    board: {
-      id: String(boardFromDataBase.id),
-      title: boardFromDataBase.name,
-      color: boardFromDataBase.color,
-    },
-    notes:
-      boardFromDataBase.items.map((note) => ({
-        ...note,
-        board: String(note.boardId),
-        column: note.columnId,
-        body: note.title || "",
-      })) || [],
-    columns:
-      boardFromDataBase.columns.map((column) => ({
-        ...column,
-        board: String(column.boardId),
-        title: column.name,
-      })) || [],
-  } satisfies BoardData;
-}, "get-board-data");
 
 const updateBoardName = action(async (boardId: number, name: string) => {
   "use server";

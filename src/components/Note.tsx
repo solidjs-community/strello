@@ -1,4 +1,4 @@
-import { action, useAction } from "@solidjs/router";
+import { action, json, useAction } from "@solidjs/router";
 import { BsPlus, BsTrash } from "solid-icons/bs";
 import { RiEditorDraggable } from "solid-icons/ri";
 import { Match, Switch, createSignal } from "solid-js";
@@ -7,6 +7,7 @@ import { ColumnId } from "./Column";
 import { getIndexBetween } from "~/lib/utils";
 import { getAuthUser } from "~/lib/auth";
 import { db } from "~/lib/db";
+import { fetchBoard } from "~/lib";
 
 export const createNote = action(
   async ({
@@ -45,7 +46,7 @@ export const createNote = action(
       update: mutation,
     });
 
-    return true;
+    return json(true, { revalidate: fetchBoard.key });
   },
   "create-item"
 );
@@ -69,7 +70,7 @@ export const editNote = action(
       data: mutation,
     });
 
-    return true;
+    return json(true, { revalidate: fetchBoard.key });
   },
   "edit-item"
 );
@@ -94,7 +95,7 @@ export const moveNote = action(
       data: mutation,
     });
 
-    return true;
+    return json(true, { revalidate: fetchBoard.key });
   },
   "move-item"
 );
@@ -105,7 +106,7 @@ export const deleteNote = action(async (id: NoteId, timestamp: number) => {
 
   await db.item.delete({ where: { id, Board: { accountId } } });
 
-  return true;
+  return json(true, { revalidate: fetchBoard.key });
 }, "delete-card");
 
 export type NoteId = string & { __brand?: "NoteId" };
@@ -262,9 +263,9 @@ export function AddNote(props: {
             class="flex flex-col space-y-2 card w-full"
             onSubmit={(e) => {
               e.preventDefault();
-              const body = inputRef?.value.trim() ?? 'Note'
-              if (body === '') {
-                inputRef?.setCustomValidity('Please fill out this field.');
+              const body = inputRef?.value.trim() ?? "Note";
+              if (body === "") {
+                inputRef?.setCustomValidity("Please fill out this field.");
                 inputRef?.reportValidity();
                 return;
               }
