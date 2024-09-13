@@ -101,9 +101,9 @@ export default function Login(props: RouteSectionProps) {
               "Login"
             )}
           </button>
-          <Show when={loggingIn.result}>
+          <Show when={loggingIn.error}>
             <p class="text-red-500 text-center" role="alert" id="error-message">
-              {loggingIn.result!.message}
+              {loggingIn.error!.message}
             </p>
           </Show>
         </div>
