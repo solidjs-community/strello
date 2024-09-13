@@ -18,7 +18,7 @@ export const loginOrRegister = action(async (formData: FormData) => {
   const password = String(formData.get("password"));
   const loginType = String(formData.get("loginType"));
   let error = validateEmail(email) || validatePassword(password);
-  if (error) return new Error(error);
+  if (error) throw new Error(error);
 
   try {
     const user = await (loginType !== "login"
@@ -26,7 +26,7 @@ export const loginOrRegister = action(async (formData: FormData) => {
       : login(email, password));
     await setAuthOnResponse(user.id);
   } catch (err) {
-    return err as Error;
+    throw err as Error;
   }
   throw redirect("/");
 });
