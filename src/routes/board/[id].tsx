@@ -3,9 +3,11 @@ import {
   RouteDefinition,
   RouteSectionProps,
   action,
-  cache,
   createAsync,
+  query,
   redirect,
+  reload,
+  revalidate,
   useAction,
   useSubmission,
 } from "@solidjs/router";
@@ -15,7 +17,7 @@ import EditableText from "~/components/EditableText";
 import { getAuthUser } from "~/lib/auth";
 import { db } from "~/lib/db";
 
-const fetchBoard = cache(async (boardId: number) => {
+const fetchBoard = query(async (boardId: number) => {
   "use server";
   const accountId = await getAuthUser();
 
@@ -61,11 +63,23 @@ const updateBoardName = action(async (boardId: number, name: string) => {
   "use server";
   const accountId = await getAuthUser();
 
-  return db.board.update({
+  await db.board.update({
     where: { id: boardId, accountId },
     data: { name },
   });
-}, "update-board-name");
+
+  return reload({ revalidate: "nothing" });
+}, {
+  name: "update-board-name",
+  onComplete: (submission) => {
+    const key = fetchBoard.keyFor(submission.input[0]);
+    const data = query.get(key);
+    data.board.title = submission.input[1];
+
+    revalidate(key, false);
+    return true;
+  }
+});
 
 export const route: RouteDefinition = {
   preload: (props) => fetchBoard(+props.params.id),

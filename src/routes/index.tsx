@@ -1,8 +1,8 @@
 import { Title } from "@solidjs/meta";
 import {
   action,
-  cache,
   createAsync,
+  query,
   redirect,
   useSubmission,
   useSubmissions,
@@ -42,7 +42,7 @@ const deleteBoard = action(async (boardId: number) => {
   });
 }, "delete-board");
 
-const getBoards = cache(async () => {
+const getBoards = query(async () => {
   "use server";
   const userId = await getAuthUser();
 
