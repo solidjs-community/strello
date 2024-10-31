@@ -1,4 +1,4 @@
-import { action, useAction } from "@solidjs/router";
+import { action, json, useAction } from "@solidjs/router";
 import { BsPlus, BsTrash } from "solid-icons/bs";
 import { RiEditorDraggable } from "solid-icons/ri";
 import {
@@ -14,6 +14,7 @@ import { getIndexBetween } from "~/lib/utils";
 import { AddNote, Note, NoteId, moveNote } from "./Note";
 import { getAuthUser } from "~/lib/auth";
 import { db } from "~/lib/db";
+import { fetchBoard } from "~/lib";
 
 export const renameColumn = action(
   async (id: ColumnId, name: string, timestamp: number) => {
@@ -25,7 +26,7 @@ export const renameColumn = action(
       data: { name },
     });
 
-    return true;
+    return json(true, { revalidate: fetchBoard.key });
   }
 );
 
@@ -47,7 +48,7 @@ export const createColumn = action(
       },
     });
 
-    return true;
+    return json(true, { revalidate: fetchBoard.key });
   },
   "create-column"
 );
@@ -62,7 +63,7 @@ export const moveColumn = action(
       data: { order },
     });
 
-    return;
+    return json(true, { revalidate: fetchBoard.key });
   },
   "create-column"
 );
@@ -75,7 +76,7 @@ export const deleteColumn = action(async (id: ColumnId, timestamp: number) => {
     where: { id, Board: { accountId } },
   });
 
-  return true;
+  return json(true, { revalidate: fetchBoard.key });
 }, "create-column");
 
 export type ColumnId = string & { __brand?: "ColumnId" };
