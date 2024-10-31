@@ -4,6 +4,9 @@ import {
   RouteSectionProps,
   action,
   createAsync,
+  query,
+  reload,
+  revalidate,
   useAction,
   useSubmission,
 } from "@solidjs/router";
@@ -18,11 +21,23 @@ const updateBoardName = action(async (boardId: number, name: string) => {
   "use server";
   const accountId = await getAuthUser();
 
-  return db.board.update({
+  await db.board.update({
     where: { id: boardId, accountId },
     data: { name },
   });
-}, "update-board-name");
+
+  return reload({ revalidate: "nothing" });
+}, {
+  name: "update-board-name",
+  onComplete: (submission) => {
+    const key = fetchBoard.keyFor(submission.input[0]);
+    const data = query.get(key);
+    data.board.title = submission.input[1];
+
+    revalidate(key, false);
+    return true;
+  }
+});
 
 export const route: RouteDefinition = {
   preload: (props) => fetchBoard(+props.params.id),

@@ -1,10 +1,10 @@
-import { action, cache, redirect } from "@solidjs/router";
+import { action, query, redirect } from "@solidjs/router";
 import { db } from "./db";
 import { login, register, validateEmail, validatePassword } from "./server";
 import { getAuthUser, logoutSession, setAuthOnResponse } from "./auth";
 import { BoardData } from "~/components/Board";
 
-export const getUser = cache(async () => {
+export const getUser = query(async () => {
   "use server";
   const userId = await getAuthUser();
   if (!userId) throw redirect("/login");
@@ -38,7 +38,7 @@ export const logout = action(async () => {
   throw redirect("/login");
 });
 
-export const redirectIfLoggedIn = cache(async () => {
+export const redirectIfLoggedIn = query(async () => {
   "use server";
 
   let userId = await getAuthUser();
@@ -48,7 +48,7 @@ export const redirectIfLoggedIn = cache(async () => {
   return null;
 }, "loggedIn");
 
-export const fetchBoard = cache(async (boardId: number) => {
+export const fetchBoard = query(async (boardId: number) => {
   "use server";
   const accountId = await getAuthUser();
 
